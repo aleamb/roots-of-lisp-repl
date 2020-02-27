@@ -8,7 +8,7 @@ typedef enum _s_exp_type {
 
 typedef struct _s_exp {
     S_EXP_TYPE type;
-    struct _s_exp* expr;
+    void* expr;
 } S_EXP;
 
 typedef struct _atom {
