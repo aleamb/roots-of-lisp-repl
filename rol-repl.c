@@ -6,14 +6,19 @@
 
 #define EXPR_SIZE 512
 
-void my_read(char* expr, FILE* stream) {
+void rol_read(char *buffer, S_EXP* s_expr) {
+
+
+}
+
+S_EXP* my_read(FILE* stream) {
     char buffer[BUFSIZ];
-    S_EXP* expr = NULL;
+    S_EXP* s_expr = NULL;
     while (fgets(buffer, EXPR_SIZE, stream) != NULL) {
         char* buf_ptr = buffer;
-        rol_read(buffer, expr)
+        rol_read(buffer, s_expr);
     }
-    return expr;
+    return s_expr;
 }
 
 int main(int argc, char** argv) {
