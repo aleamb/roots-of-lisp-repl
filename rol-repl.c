@@ -21,16 +21,16 @@ S_EXP* parse_s_expr(char *buffer, S_EXP* parent_s_expr, int* cread, int* p) {
             case '\'': {
                 int r = 0;
                 p++;
-                local_s_expr = rol_make_cons(rol_make_atom_from_string("quote"), parse_s_expr(buffer, parent_s_expr, &r, &p));
+                local_s_expr = rol_make_cons(rol_make_atom_from_string("quote"), parse_s_expr(buffer, parent_s_expr, &r, p));
                 *cread += r;
                 return local_s_expr;
             }
             case '(': {
                 int r = 0;
                 p++;
-                S_EXP* car = parse_s_expr(buffer, s_expr, &r, &p);
+                S_EXP* car = parse_s_expr(buffer, parent_s_expr, &r, p);
                 buffer += r;
-                S_EXP* cdr = parse_s_expr(buffer, s_expr, &r, &p);
+                S_EXP* cdr = parse_s_expr(buffer, parent_s_expr, &r, p);
                 local_s_expr = rol_make_cons(car, cdr);
                 return local_s_expr;
             }
