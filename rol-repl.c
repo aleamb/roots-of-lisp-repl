@@ -6,65 +6,49 @@
 #include "rol.h"
 
 #define EXPR_SIZE 512
-#define ATOM_NAME_BUFFER = 8
+#define ATOM_SIZE 64
+#define TOKEN_OPEN_PARENTHESIS '('
+#define TOKEN_CLOSE_PARENTHESIS ')'
+#define TOKEN_QUOTE '\''
 
-S_EXP* parse_s_expr(char *buffer, S_EXP* parent_s_expr, int* cread, int* p) {
-    int token_active = 0;
-    char c;
-    S_EXP* local_s_expr = NULL;
-    char str_atom[64];
-    int count_char_atom = 0;
+char* next_token(FILE *fp) {
+  return NULL;
+}
 
-    while ((c = *buffer++)) {
-        *cread++;
-        switch (c) {
-            case '\'': {
-                int r = 0;
-                p++;
-                local_s_expr = rol_make_cons(rol_make_atom_from_string("quote"), parse_s_expr(buffer, parent_s_expr, &r, p));
-                *cread += r;
-                return local_s_expr;
-            }
-            case '(': {
-                int r = 0;
-                p++;
-                S_EXP* car = parse_s_expr(buffer, parent_s_expr, &r, p);
-                buffer += r;
-                S_EXP* cdr = parse_s_expr(buffer, parent_s_expr, &r, p);
-                local_s_expr = rol_make_cons(car, cdr);
-                return local_s_expr;
-            }
-            case ')':
-                p--;
-                return local_s_expr;
-            case ' ':
-            case '\n':
-            case '\t':
-                if (token_active) {
-                    str_atom[count_char_atom] = '\0';
-                    count_char_atom = 0;
-                    return rol_make_atom_from_string(str_atom);
-                }
-                break;
-            default:
-                token_active = 1;
-                str_atom[count_char_atom++] = c;
-            break;
-        }
-    }
-    return local_s_expr;
+char* peek_token(FILE *fp) {
+  return NULL;
+}
+
+S_EXP* s_list(fp) {
+
+  char* token = 
+
+  S_EXP* s_exp = s_expression(fp);
+
+
+}
+
+S_EXP* s_expression(FILE* fp) {
+  char token[ATOM_SIZE];
+  next_token(&token, fp);
+  S_EXP* s_exp = NULL;
+  if (token[0] == TOKEN_OPEN_PARENTHESIS) {
+    s_exp = s_list(fp);
+  } else if (token[0] == TOKEN_QUOTE) {
+    s_exp = s_expression(fp);
+    s_exp = rol_make_cons(rol_make_atom_from_string("quote"), s_exp);
+  } else if (isalnum(token[0])) {
+    s_exp = rol_make_atom_from_string(token);
+  } else {
+    puts("Syntax error");
+  }
+  return s_exp;
 }
 
 S_EXP* my_read(FILE* stream) {
-    char buffer[BUFSIZ];
     S_EXP* s_expr = NULL;
-    int readed = 0;
-    int paren = 0;
-    int need_tokens = 1;
-    while (need_tokens && fgets(buffer, EXPR_SIZE, stream) != NULL) {
-        s_expr = parse_s_expr(buffer, s_expr, &readed, &paren);
-        need_tokens = (paren != 0);
-    }
+    printf("rol>");
+    s_expr = s_expression(stdin);
     return s_expr;
 }
 
@@ -74,8 +58,7 @@ int main(int argc, char** argv) {
 
     while (!feof(stdin)) {
         S_EXP* expr = my_read(stdin);
-        //eval(expr);
-        //print();
+        //print(eval(expr));
     }
 
     return 0;
