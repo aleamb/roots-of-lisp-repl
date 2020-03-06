@@ -6,11 +6,15 @@
 #include "rol.h"
 
 #define EXPR_SIZE 512
+#define ATOM_NAME_BUFFER = 8
 
 S_EXP* parse_s_expr(char *buffer, S_EXP* parent_s_expr, int* cread, int* p) {
     int token_active = 0;
     char c;
     S_EXP* local_s_expr = NULL;
+    char str_atom[64];
+    int count_char_atom = 0;
+
     while ((c = *buffer++)) {
         *cread++;
         switch (c) {
@@ -37,16 +41,14 @@ S_EXP* parse_s_expr(char *buffer, S_EXP* parent_s_expr, int* cread, int* p) {
             case '\n':
             case '\t':
                 if (token_active) {
-                    return local_s_expr;
+                    str_atom[count_char_atom] = '\0';
+                    count_char_atom = 0;
+                    return rol_make_atom_from_string(str_atom);
                 }
                 break;
             default:
                 token_active = 1;
-                if (!local_s_expr) {
-                    local_s_expr = rol_make_atom(c);
-                } else {
-                    rol_add_atom_char(local_s_expr, c);
-                }
+                str_atom[count_char_atom++] = c;
             break;
         }
     }
