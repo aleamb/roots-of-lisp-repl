@@ -20,4 +20,10 @@ typedef struct _cons {
     S_EXP* cdr;
 } TCONS;
 
+
+S_EXP* rol_make_atom_from_string(const char*);
+
+S_EXP* rol_make_cons(const S_EXP*, const S_EXP*);
+
+
 #endif /* _TYPES_H_ */
