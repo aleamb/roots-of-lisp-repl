@@ -24,3 +24,8 @@ S_EXP* rol_make_cons(S_EXP* car, S_EXP* cdr)  {
 
   return s_expr;
 }
+
+
+void rol_set_cdr(S_EXP* current, S_EXP* cdr) {
+    ((TCONS*)current)->cdr = cdr;
+}

@@ -11,26 +11,36 @@
 #define TOKEN_CLOSE_PARENTHESIS ')'
 #define TOKEN_QUOTE '\''
 
-char* next_token(FILE *fp) {
+S_EXP* s_expression(FILE* fp);
+
+char* next_token(char* token, FILE *fp) {
   return NULL;
 }
 
-char* peek_token(FILE *fp) {
+char* peek_token(char* token, FILE *fp) {
   return NULL;
 }
 
-S_EXP* s_list(fp) {
-
-  char* token = 
-
-  S_EXP* s_exp = s_expression(fp);
-
-
+S_EXP* s_list(FILE* fp) {
+  char token[ATOM_SIZE];
+  peek_token(token, fp);
+  S_EXP* s_expr = NULL;
+  while (token[0] != TOKEN_CLOSE_PARENTHESIS) {
+      if (!s_expr) {
+        s_expr = rol_make_cons(s_expression(fp), NULL);
+      } else {
+          S_EXP *local_expr = rol_make_cons(s_expr, NULL);
+          rol_set_cdr(s_expr, local_expr);
+          s_expr = local_expr;
+      }
+      peek_token(token, fp);
+  }
+  return s_expr;
 }
 
 S_EXP* s_expression(FILE* fp) {
   char token[ATOM_SIZE];
-  next_token(&token, fp);
+  next_token(token, fp);
   S_EXP* s_exp = NULL;
   if (token[0] == TOKEN_OPEN_PARENTHESIS) {
     s_exp = s_list(fp);
@@ -46,10 +56,8 @@ S_EXP* s_expression(FILE* fp) {
 }
 
 S_EXP* my_read(FILE* stream) {
-    S_EXP* s_expr = NULL;
     printf("rol>");
-    s_expr = s_expression(stdin);
-    return s_expr;
+    return s_expression(stdin);
 }
 
 int main(int argc, char** argv) {

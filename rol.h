@@ -25,5 +25,6 @@ S_EXP* rol_make_atom_from_string(const char*);
 
 S_EXP* rol_make_cons(S_EXP*, S_EXP*);
 
+void rol_set_cdr(S_EXP*, S_EXP*);
 
 #endif /* _TYPES_H_ */
