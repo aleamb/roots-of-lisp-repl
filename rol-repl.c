@@ -14,16 +14,16 @@ S_EXP* rol_read(FILE* stream) {
 
 void _print(S_EXP* s_exp, int level) {
   if (s_exp == NULL) { printf(")"); return; }
-  if (s_exp->type == ATOM) {
-    char *symbol = ((TATOM*)(s_exp->expr))->name;
+  if (rol_is_atom(s_exp)) {
+    char *symbol = rol_get_atom_name(s_exp);
     printf("%s", symbol);
   } else {
-    S_EXP* car = ((TCONS*)(s_exp->expr))->car;
-    S_EXP* cdr = ((TCONS*)(s_exp->expr))->cdr;
+    S_EXP* car = rol_get_car(s_exp);
+    S_EXP* cdr = rol_get_cdr(s_exp); 
     if (!car && !cdr) {
       printf("NIL");
     } else {
-      if (level == 0 || car->type == CONS)
+      if (level == 0 || rol_is_cons(s_exp))
         printf("(");
       _print(car, level + 1 );
       if (cdr != NULL)

@@ -27,4 +27,17 @@ S_EXP* rol_make_cons(S_EXP*, S_EXP*);
 
 void rol_set_cdr(S_EXP*, S_EXP*);
 
+char* rol_get_atom_name(S_EXP* atom);
+
+int rol_nil(S_EXP* s_expr);
+
+int rol_is_atom(S_EXP*);
+
+int rol_is_cons(S_EXP*);
+
+S_EXP* rol_get_car(S_EXP*);
+
+S_EXP* rol_get_cdr(S_EXP*);
+
+
 #endif /* _TYPES_H_ */

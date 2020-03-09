@@ -25,7 +25,33 @@ S_EXP* rol_make_cons(S_EXP* car, S_EXP* cdr)  {
   return s_expr;
 }
 
-
 void rol_set_cdr(S_EXP* current, S_EXP* cdr) {
     ((TCONS*)(current->expr))->cdr = cdr;
+}
+
+char* rol_get_atom_name(S_EXP* atom) {
+  if (atom->type == ATOM) {
+    ((TATOM*)atom->expr)->name;
+  }
+  return NULL;
+}
+
+int rol_nil(S_EXP* s_expr) {
+  return (s_expr == NULL || s_expr->expr == NULL);
+}
+
+int rol_is_atom(S_EXP* s_exp) {
+  return s_exp->type == ATOM;
+}
+
+int rol_is_cons(S_EXP* s_exp) {
+  return s_exp->type == CONS;
+}
+
+S_EXP* rol_get_car(S_EXP* s_exp) {
+  return ((TCONS*)(s_exp->expr))->car;
+}
+
+S_EXP* rol_get_cdr(S_EXP* s_exp) {
+  return ((TCONS*)(s_exp->expr))->cdr;
 }
