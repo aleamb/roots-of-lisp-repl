@@ -1,4 +1,4 @@
-#ifndef _TYPES_H
+#ifndef _TYPES_H_
 #define _TYPES_H_
 
 typedef enum _s_exp_type {
