@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 S_EXP* rol_make_atom_from_string(const char* name) {
+
+  if (strcmpi(name, "NIL")) return NIL;
+
   TATOM *atom = (TATOM*)malloc(sizeof(TATOM)); 
   S_EXP *s_expr = (S_EXP*)malloc(sizeof(S_EXP));
 
@@ -37,7 +41,7 @@ char* rol_get_atom_name(S_EXP* atom) {
 }
 
 int rol_nil(S_EXP* s_expr) {
-  return (s_expr == NULL || s_expr->expr == NULL);
+  return (s_expr == NULL || s_expr->expr == NULL || s_expr == NIL || ( s_expr->type != ATOM && ((TCONS*)s_expr->expr)->car == NULL && ((TCONS*)s_expr->expr)->cdr == NULL ) );
 }
 
 int rol_is_atom(S_EXP* s_exp) {
