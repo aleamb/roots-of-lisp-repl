@@ -5,11 +5,21 @@
 
 S_EXP* T;
 S_EXP* NIL;
-S_EXP* env;
+char* T_atom_name = "T";
+
+void rol_init() {
+  NIL = rol_make_cons(NULL, NULL);
+
+  TATOM* atom = (TATOM*)malloc(sizeof(TATOM));
+  atom->name = T_atom_name;
+  T = (S_EXP*)malloc(sizeof(S_EXP));
+  T->expr = atom;
+}
 
 S_EXP* rol_make_atom_from_string(const char* name) {
 
   if (strcmpi(name, "NIL") == 0) return NIL;
+  if (strcmpi(name, "T") == 0) return T;
 
   TATOM *atom = (TATOM*)malloc(sizeof(TATOM)); 
   S_EXP *s_expr = (S_EXP*)malloc(sizeof(S_EXP));
@@ -21,7 +31,7 @@ S_EXP* rol_make_atom_from_string(const char* name) {
   return s_expr;
 }
 
-S_EXP* rol_make_cons(S_EXP* car, S_EXP* cdr)  {
+S_EXP* rol_make_cons(S_EXP* car, S_EXP* cdr) {
   TCONS *cons = (TCONS*)malloc(sizeof(TCONS));
   S_EXP *s_expr = (S_EXP*)malloc(sizeof(S_EXP));
   

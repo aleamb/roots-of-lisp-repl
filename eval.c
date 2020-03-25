@@ -5,8 +5,12 @@
 #include "rol.h"
 
 
-//axioms
+// utilities
+int atom_name_equal(S_EXP* exp, const char* name) {
+  return exp != NULL && exp != NIL && strcmpi(((TATOM*)exp->expr)->name, name) == 0;
+}
 
+//axioms
 S_EXP* quote(S_EXP* s_expr) {
     return s_expr;
 }
@@ -104,7 +108,7 @@ S_EXP* pair(S_EXP* expr1, S_EXP* expr2) {
   if (rol_t( and( _null(expr1), _null(expr2)))) {
     return NIL;
   }
-  if (rol_t(and( not(atom(expr1)), not(atom(expr2)) ))) {
+  if (rol_t(and(not(atom(expr1)), not(atom(expr2)) ))) {
     return cons(list(car(expr1), car(expr2)), pair(cdr(expr1), cdr(expr2)));
   }
   return NIL;
@@ -119,10 +123,25 @@ S_EXP* assoc(S_EXP* expr1, S_EXP* expr2) {
 
 // evaluator
 
-S_EXP* eval(S_EXP* expr, S_EXP* env) {
-  if (rol_t(atom(expr))) {
+S_EXP* eval(S_EXP* e, S_EXP* a) {
+  S_EXP* result = NULL;
+  if (rol_t(atom(e))) {
+    result = assoc(e, a);
+  } else if (rol_t(atom(car(e)))) {
 
+    if (atom_name_equal(car(e), "quote")) {
+      result = cadr(e);
+    } else if (atom_name_equal(car(e), "quote")) {
+    } else if (atom_name_equal(car(e), "atom")) {
+    } else if (atom_name_equal(car(e), "eq")) {
+    } else if (atom_name_equal(car(e), "car")) {
+    } else if (atom_name_equal(car(e), "cdr")) {
+    } else if (atom_name_equal(car(e), "cons")) {
+    } else if (atom_name_equal(car(e), "cond")) {
+    } else {
+      
+    }
   }
-  return NULL;
+  return result;
 
 }

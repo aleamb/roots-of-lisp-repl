@@ -24,6 +24,15 @@ typedef struct {
 
 S_EXP* s_expression(S_EXP_LEX* lexer);
 
+const char* atom_chars = ".?_-\\/¿!¡=%&$@~¬";
+
+static int lexer_atom_char(char c) {
+  return strchr(atom_chars, c) != NULL;
+}
+static int atom_char( char c) {
+  return isalnum(c) || lexer_atom_char(c);
+}
+
 void rol_lexer_init(S_EXP_LEX* lexer, FILE* stream) {
   lexer->stream = stream;
   memset(lexer->buffer, 0, sizeof(lexer->buffer));
@@ -72,7 +81,7 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
           token_available = 1;
           break;
         default:
-          if (isalnum(c)) {
+          if (atom_char(c)) {
             lexer->token_value[ti++] = c;
           }
       }
@@ -119,7 +128,7 @@ S_EXP* s_expression(S_EXP_LEX* lexer) {
     s_exp = s_list(lexer);
   } else if (token == TOKEN_QUOTE) {
     s_exp = s_expression(lexer);
-    s_exp = rol_make_cons(rol_make_atom_from_string("quote"), s_exp);
+    s_exp = rol_make_cons(rol_make_atom_from_string("quote"), rol_make_cons(s_exp, NIL));
   } else if (token == TOKEN_ATOM) {
       s_exp = rol_make_atom_from_string(lexer->token_value);
   } else {

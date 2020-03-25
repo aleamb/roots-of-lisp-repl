@@ -43,9 +43,9 @@ S_EXP* rol_get_car(S_EXP*);
 
 S_EXP* rol_get_cdr(S_EXP*);
 
+void rol_init();
+
 extern S_EXP* T;
 extern S_EXP* NIL;
-extern S_EXP* env;
-
 
 #endif /* _TYPES_H_ */
