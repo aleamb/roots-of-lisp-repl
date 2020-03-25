@@ -13,7 +13,7 @@ S_EXP* rol_read(FILE* stream) {
 }
 
 void _print(S_EXP* s_exp, int level) {
-  if (s_exp == NULL) { printf(")"); return; }
+  if (s_exp == NULL || s_exp == NIL) { printf(")"); return; }
   if (rol_is_atom(s_exp)) {
     char *symbol = rol_get_atom_name(s_exp);
     printf("%s", symbol);
@@ -28,8 +28,7 @@ void _print(S_EXP* s_exp, int level) {
       _print(car, level + 1 );
       if (cdr != NULL)
         printf(" ");
-      _print(cdr,  level + 1 );
-     
+      _print(cdr,  level + 1 ); 
     }
   }
 }

@@ -9,7 +9,7 @@ S_EXP* env;
 
 S_EXP* rol_make_atom_from_string(const char* name) {
 
-  if (strcmpi(name, "NIL")) return NIL;
+  if (strcmpi(name, "NIL") == 0) return NIL;
 
   TATOM *atom = (TATOM*)malloc(sizeof(TATOM)); 
   S_EXP *s_expr = (S_EXP*)malloc(sizeof(S_EXP));
@@ -39,7 +39,7 @@ void rol_set_cdr(S_EXP* current, S_EXP* cdr) {
 
 char* rol_get_atom_name(S_EXP* atom) {
   if (atom->type == ATOM) {
-    ((TATOM*)atom->expr)->name;
+    return ((TATOM*)atom->expr)->name;
   }
   return NULL;
 }
