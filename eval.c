@@ -10,12 +10,14 @@ int atom_name_equal(S_EXP* exp, const char* name) {
   return exp != NULL && exp != NIL && strcmpi(((TATOM*)exp->expr)->name, name) == 0;
 }
 
+
 //axioms
 S_EXP* quote(S_EXP* s_expr) {
     return s_expr;
 }
 
 S_EXP* atom(S_EXP* s_expr) {
+  if (!s_expr) return NIL;
   if (s_expr->type == ATOM) {
     return T;
   }
@@ -59,6 +61,11 @@ S_EXP* caar(S_EXP* expr) {
 S_EXP* cadar(S_EXP* expr) {
   return car(cdr(car(expr)));
 }
+
+S_EXP* caddar(S_EXP* expr) {
+  return car((cdr(cdr(car(expr)))));
+}
+
 
 S_EXP* list(S_EXP* expr1, ...) {
   va_list argp;
@@ -115,6 +122,7 @@ S_EXP* pair(S_EXP* expr1, S_EXP* expr2) {
 }
 
 S_EXP* assoc(S_EXP* expr1, S_EXP* expr2) {
+  if (expr2 == NIL) return NIL;
   if (rol_t(eq(caar(expr2), expr1) )) {
     return cadar(expr2);
   }
@@ -123,25 +131,59 @@ S_EXP* assoc(S_EXP* expr1, S_EXP* expr2) {
 
 // evaluator
 
+S_EXP* evcon(S_EXP* c, S_EXP* a) {
+  S_EXP* result = NULL;
+  if (rol_t(eval(caar(c), a))) {
+    result = eval(cadar(c), a);
+  } else {
+    result = evcon(cdr(c), a);
+  }
+  return result;
+}
+
+S_EXP* evlis(S_EXP* m, S_EXP* a) {
+  S_EXP* result = NULL;
+  if (rol_t(_null(m))) {
+    result = NIL;
+  } else {
+    result = cons(eval(car(m), a), evlis(cdr(m), a));
+  }
+  return result;
+}
+
+
 S_EXP* eval(S_EXP* e, S_EXP* a) {
   S_EXP* result = NULL;
   if (rol_t(atom(e))) {
     result = assoc(e, a);
   } else if (rol_t(atom(car(e)))) {
-
     if (atom_name_equal(car(e), "quote")) {
       result = cadr(e);
     } else if (atom_name_equal(car(e), "quote")) {
+      result = cadr(e);
     } else if (atom_name_equal(car(e), "atom")) {
+      result = atom(eval(cadr(e),a));
     } else if (atom_name_equal(car(e), "eq")) {
+      result = eq( eval(cadr(e), a), eval(caddr(e), a));
     } else if (atom_name_equal(car(e), "car")) {
+      result = car(eval(cadr(e), a));
     } else if (atom_name_equal(car(e), "cdr")) {
+      result = cdr(eval(cadr(e), a));
     } else if (atom_name_equal(car(e), "cons")) {
+      result = cons( eval(cadr(e), a), eval(caddr(e), a));
     } else if (atom_name_equal(car(e), "cond")) {
+      result = evcon(cdr(e), a);
     } else {
-      
+      result = eval(cons(assoc(car(e), a), cdr(e)), a);
     }
+  } else if (atom_name_equal(caar(e), "label")) {
+    result = eval( cons(caddar(e), cdr(e)), 
+                  cons(list(cadar(e), car(e)) ,a)); 
+  } else if (atom_name_equal(caar(e), "lambda")) {
+    result = eval(caddar(e), append( pair(cadar(e), evlis(cdr(e), a)) , a));
+  } else {
+    result = NIL;
   }
   return result;
-
 }
+
