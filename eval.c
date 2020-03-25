@@ -1,10 +1,11 @@
 #include <stdarg.h>
 #include <string.h>
+#include <stdio.h>
 #include "eval.h"
+#include "rol.h"
 
 
-
-S_EXP* eval(S_EXP*, S_EXP*);
+//axioms
 
 S_EXP* quote(S_EXP* s_expr) {
     return s_expr;
@@ -33,26 +34,95 @@ S_EXP* cons(S_EXP* expr1, S_EXP* expr2) {
   return rol_make_cons(expr1, expr2);
 }
 
-S_EXP* cond(S_EXP* expr1, ...) { 
+
+// abbreviations
+S_EXP* cadr(S_EXP* expr) {
+  return car(cdr(expr));
+}
+
+S_EXP* caddr(S_EXP* expr) {
+  return car(cdr(cdr(expr)));
+}
+
+S_EXP* cdar(S_EXP* expr) {
+  return cdr(car(expr));
+}
+
+S_EXP* caar(S_EXP* expr) {
+  return car(car(expr));
+}
+
+S_EXP* cadar(S_EXP* expr) {
+  return car(cdr(car(expr)));
+}
+
+S_EXP* list(S_EXP* expr1, ...) {
   va_list argp;
   va_start(argp, expr1);
-  S_EXP* expr = NULL;
-  if (expr1->type == ATOM) {
-    printf("Arguments must be a list");
+  S_EXP* l = cons(expr1, NIL);
+  S_EXP* expr;
+  while ((expr = va_arg(argp, S_EXP*)) != NULL) {
+    S_EXP* cs = cons(expr, NIL);
+    rol_set_cdr(l, cs);
+    l = cs;
+  }
+  return l;
+}
+
+
+// functions (Chapter 3)
+
+S_EXP* _null(S_EXP* expr) {
+  if (expr == NIL || rol_empty_list(expr)) {
+    return T;
+  }
+  return NIL;
+}
+
+S_EXP* and(S_EXP* expr1, S_EXP* expr2) {
+  if (expr1 == T && expr2 == T) {
+    return T;
+  }
+  return NIL;
+}
+
+S_EXP* not(S_EXP* expr1) {
+  if (rol_t(expr1)) {
     return NIL;
   }
+  return T;
+}
 
-  S_EXP* car_result = eval(rol_get_car(expr1), env);
-  if (!rol_nil(car_result)) {
-    return eval(rol_get_cdr(expr), env);
+S_EXP* append(S_EXP* expr1, S_EXP* expr2) {
+  if (rol_t(_null(expr1)) ) {
+    return expr2;
   }
+  return cons(car(expr1), append(cdr(expr1), expr2));
+}
 
-  while ((expr = va_arg(argp, S_EXP*)) != NULL) {
-    S_EXP* car_result = eval(rol_get_car(expr), env);
-    if (!rol_nil(car_result)) {
-      return eval(rol_get_cdr(expr), env);
-    }
+S_EXP* pair(S_EXP* expr1, S_EXP* expr2) {
+  if (rol_t( and( _null(expr1), _null(expr2)))) {
+    return NIL;
   }
-  va_end(argp);
+  if (rol_t(and( not(atom(expr1)), not(atom(expr2)) ))) {
+    return cons(list(car(expr1), car(expr2)), pair(cdr(expr1), cdr(expr2)));
+  }
   return NIL;
+}
+
+S_EXP* assoc(S_EXP* expr1, S_EXP* expr2) {
+  if (rol_t(eq(caar(expr2), expr1) )) {
+    return cadar(expr2);
+  }
+  return assoc(expr1, cdr(expr2));
+}
+
+// evaluator
+
+S_EXP* eval(S_EXP* expr, S_EXP* env) {
+  if (rol_t(atom(expr))) {
+
+  }
+  return NULL;
+
 }

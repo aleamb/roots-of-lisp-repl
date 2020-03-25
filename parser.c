@@ -121,7 +121,7 @@ S_EXP* s_expression(S_EXP_LEX* lexer) {
     s_exp = s_expression(lexer);
     s_exp = rol_make_cons(rol_make_atom_from_string("quote"), s_exp);
   } else if (token == TOKEN_ATOM) {
-    s_exp = rol_make_atom_from_string(lexer->token_value);
+      s_exp = rol_make_atom_from_string(lexer->token_value);
   } else {
     puts("Syntax error");
   }

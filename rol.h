@@ -35,6 +35,10 @@ int rol_is_atom(S_EXP*);
 
 int rol_is_cons(S_EXP*);
 
+int rol_t(S_EXP* s_expr);
+
+int rol_empty_list(S_EXP* s_expr);
+
 S_EXP* rol_get_car(S_EXP*);
 
 S_EXP* rol_get_cdr(S_EXP*);

@@ -3,6 +3,10 @@
 #include <string.h>
 
 
+S_EXP* T;
+S_EXP* NIL;
+S_EXP* env;
+
 S_EXP* rol_make_atom_from_string(const char* name) {
 
   if (strcmpi(name, "NIL")) return NIL;
@@ -41,7 +45,11 @@ char* rol_get_atom_name(S_EXP* atom) {
 }
 
 int rol_nil(S_EXP* s_expr) {
-  return (s_expr == NULL || s_expr->expr == NULL || s_expr == NIL || ( s_expr->type != ATOM && ((TCONS*)s_expr->expr)->car == NULL && ((TCONS*)s_expr->expr)->cdr == NULL ) );
+  return (s_expr == NULL || s_expr->expr == NULL || s_expr == NIL || rol_empty_list(s_expr) );
+}
+
+int rol_t(S_EXP* s_expr) {
+  return (s_expr != NULL && s_expr->expr != NULL && s_expr == T || !rol_empty_list(s_expr) );
 }
 
 int rol_is_atom(S_EXP* s_exp) {
@@ -50,6 +58,10 @@ int rol_is_atom(S_EXP* s_exp) {
 
 int rol_is_cons(S_EXP* s_exp) {
   return s_exp->type == CONS;
+}
+
+int rol_empty_list(S_EXP* s_expr) {
+  return ( s_expr->type != ATOM && ((TCONS*)s_expr->expr)->car == NULL && ((TCONS*)s_expr->expr)->cdr == NULL );
 }
 
 S_EXP* rol_get_car(S_EXP* s_exp) {
