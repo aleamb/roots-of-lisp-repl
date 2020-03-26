@@ -81,7 +81,7 @@ int rol_is_cons(S_EXP* s_exp) {
 }
 
 int rol_empty_list(S_EXP* s_expr) {
-  return ( s_expr->type != ATOM && ((TCONS*)s_expr->expr)->car == NULL && ((TCONS*)s_expr->expr)->cdr == NULL );
+  return (s_expr == NULL || s_expr->expr == NULL || s_expr == NIL || (((TCONS*)s_expr->expr)->car == NULL && ((TCONS*)s_expr->expr)->cdr == NULL) );
 }
 
 S_EXP* rol_get_car(S_EXP* s_exp) {
