@@ -1,4 +1,4 @@
-#include <stdarg.h>
+
 #include <string.h>
 #include <stdio.h>
 #include "eval.h"
@@ -17,7 +17,7 @@ S_EXP* quote(S_EXP* s_expr) {
 }
 
 S_EXP* atom(S_EXP* s_expr) {
-  if (!s_expr) return NIL;
+  if (!s_expr || s_expr == NIL || rol_empty_list(s_expr)) return T;
   if (s_expr->type == ATOM) {
     return T;
   }
@@ -39,7 +39,6 @@ S_EXP* cdr(S_EXP* expr) {
 S_EXP* cons(S_EXP* expr1, S_EXP* expr2) { 
   return rol_make_cons(expr1, expr2);
 }
-
 
 // abbreviations
 S_EXP* cadr(S_EXP* expr) {
@@ -65,21 +64,6 @@ S_EXP* cadar(S_EXP* expr) {
 S_EXP* caddar(S_EXP* expr) {
   return car((cdr(cdr(car(expr)))));
 }
-
-
-S_EXP* list(S_EXP* expr1, ...) {
-  va_list argp;
-  va_start(argp, expr1);
-  S_EXP* l = cons(expr1, NIL);
-  S_EXP* expr;
-  while ((expr = va_arg(argp, S_EXP*)) != NULL) {
-    S_EXP* cs = cons(expr, NIL);
-    rol_set_cdr(l, cs);
-    l = cs;
-  }
-  return l;
-}
-
 
 // functions (Chapter 3)
 
@@ -116,7 +100,7 @@ S_EXP* pair(S_EXP* expr1, S_EXP* expr2) {
     return NIL;
   }
   if (rol_t(and(not(atom(expr1)), not(atom(expr2)) ))) {
-    return cons(list(car(expr1), car(expr2)), pair(cdr(expr1), cdr(expr2)));
+    return cons(rol_make_cons(car(expr1), rol_make_cons(car(expr2), NIL)), pair(cdr(expr1), cdr(expr2)));
   }
   return NIL;
 }
@@ -153,7 +137,7 @@ S_EXP* evlis(S_EXP* m, S_EXP* a) {
 
 
 S_EXP* eval(S_EXP* e, S_EXP* a) {
-  S_EXP* result = NULL;
+  S_EXP* result = NIL;
   if (rol_t(atom(e))) {
     result = assoc(e, a);
   } else if (rol_t(atom(car(e)))) {
@@ -178,11 +162,9 @@ S_EXP* eval(S_EXP* e, S_EXP* a) {
     }
   } else if (atom_name_equal(caar(e), "label")) {
     result = eval( cons(caddar(e), cdr(e)), 
-                  cons(list(cadar(e), car(e)) ,a)); 
+                  cons(rol_make_cons(cadar(e), rol_make_cons(car(e), NIL)), a)); 
   } else if (atom_name_equal(caar(e), "lambda")) {
     result = eval(caddar(e), append( pair(cadar(e), evlis(cdr(e), a)) , a));
-  } else {
-    result = NIL;
   }
   return result;
 }
