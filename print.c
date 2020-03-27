@@ -44,8 +44,10 @@ static void _s_exp_print(S_EXP sexp, int level) {
       } else if (s_exp_atom(car) && s_exp_atom(cdr)) {
         printf("(");
         _s_exp_print(car, level);
-        printf (" . ");
-        _s_exp_print(cdr, level);
+        if (cdr != NULL) {
+          printf (" . ");
+          _s_exp_print(cdr, level);
+        }
         printf(")");
       } else {
         printf("(");

@@ -29,10 +29,10 @@ int main(int argc, char** argv) {
 
     while (!feof(stdin)) {
         S_EXP sexp = rol_read(stdin);
-        
-        print(sexp);
-        printf("\n");
+        //print(sexp);
+        //printf("\n");
         print(eval(sexp, environment));
+        printf("\n");
         s_exp_free(sexp);
     }
     s_exp_free(environment);
