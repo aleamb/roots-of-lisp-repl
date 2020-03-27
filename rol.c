@@ -39,7 +39,7 @@ const S_EXP NIL = &t_nil_node;
 // utilities
 
 static int empty_list(S_EXP sexp) {
-  return !s_exp_atom(sexp) && s_exp_get_car(sexp) == NULL && s_exp_get_cdr(sexp) == NULL;
+  return !s_exp_atom(sexp) && ((s_exp_get_car(sexp) == NULL && s_exp_get_cdr(sexp) == NULL) || (s_exp_get_car(sexp) == NIL && s_exp_get_cdr(sexp) == NIL));
 }
 
 int atom_name_equal(S_EXP sexp, const char* name) {
@@ -59,8 +59,7 @@ S_EXP quote(S_EXP a) {
 }
 
 S_EXP atom(S_EXP sexp) {
-  if (empty_list(sexp)) return T;
-  if (s_exp_atom(sexp)) {
+  if (s_exp_atom(sexp) || empty_list(sexp)) {
     return T;
   }
   return NIL;
@@ -161,7 +160,7 @@ S_EXP assoc(S_EXP x, S_EXP y) {
 // evaluator (Chapter 4)
 
 S_EXP evcon(S_EXP c, S_EXP a) {
-  S_EXP result = NULL;
+  S_EXP result = NIL;
   if (!empty_list(eval(caar(c), a))) {
     result = eval(cadar(c), a);
   } else {
@@ -171,7 +170,7 @@ S_EXP evcon(S_EXP c, S_EXP a) {
 }
 
 S_EXP evlis(S_EXP m, S_EXP a) {
-  S_EXP result = NULL;
+  S_EXP result = NIL;
   if (!empty_list(_null(m))) {
     result = NIL;
   } else {

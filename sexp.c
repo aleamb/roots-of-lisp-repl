@@ -47,7 +47,7 @@ static int is_atom(S_EXP sexp) {
 }
 
 static char* atom_name(S_EXP sexp) {
-  if (sexp != NULL && is_atom(sexp)) {
+  if (is_atom(sexp)) {
     return ((TATOM*)sexp->expr)->name;
   }
   return NULL;
@@ -83,17 +83,15 @@ static void set_cdr(S_EXP sexp, S_EXP cdr) {
 }
 
 static S_EXP get_car(S_EXP sexp) {
-  if (!is_atom(sexp)) {
-    TCONS* cons = (TCONS*)(sexp->expr);
-    if (cons) return cons->car;
+  if (!s_exp_atom(sexp) && sexp->expr) {
+    return ((TCONS*)(sexp->expr))->car;
   }
   return NULL;
 }
 
 static S_EXP get_cdr(S_EXP sexp) {
-  if (!s_exp_atom(sexp)) {
-    TCONS* cons = (TCONS*)(sexp->expr);
-    if (cons) return cons->cdr;
+  if (!s_exp_atom(sexp) && sexp->expr) {
+    return ((TCONS*)(sexp->expr))->cdr;
   }
   return NULL;
 }
@@ -153,5 +151,3 @@ void s_exp_free(S_EXP sexp) {
     free(sexp);
   }
 }
-
-
