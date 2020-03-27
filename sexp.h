@@ -21,11 +21,45 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE. 
 */
-#ifndef _EVAL_H_
-#define _EVAL_H_
 
-#include "sexp.h"
+#ifndef _SEXP_H_
+#define _SEXP_H_
 
-S_EXP eval(S_EXP, S_EXP);
+typedef enum {
+    ATOM,
+    CONS
+} S_EXP_TYPE;
 
-#endif /* _EVAL_H_ */
+typedef struct {
+    S_EXP_TYPE type;
+    void* expr;
+} S_EXP_NODE;
+
+typedef S_EXP_NODE* S_EXP;
+
+typedef struct _atom {
+    char *name;
+} TATOM;
+
+typedef struct _cons {
+  S_EXP car;
+  S_EXP cdr;
+} TCONS;
+
+int s_exp_atom(S_EXP);
+
+char* s_exp_atom_name(S_EXP);
+
+S_EXP s_exp_create_atom(const char*);
+
+S_EXP s_exp_create_cons(S_EXP, S_EXP);
+
+S_EXP s_exp_get_car(S_EXP);
+
+S_EXP s_exp_get_cdr(S_EXP);
+
+void s_exp_set_cdr(S_EXP, S_EXP);
+
+void s_exp_free(S_EXP s_exp);
+
+#endif /* _SEXP_H_ */
