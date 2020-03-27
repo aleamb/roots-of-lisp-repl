@@ -182,6 +182,7 @@ S_EXP evlis(S_EXP m, S_EXP a) {
 
 S_EXP eval(S_EXP e, S_EXP a) {
   S_EXP result = NIL;
+  print(e);
   if (!empty_list(atom(e))) {
     result = assoc(e, a);
   } else if (!empty_list(atom(car(e)))) {
