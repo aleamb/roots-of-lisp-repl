@@ -1,123 +1,166 @@
+/* 
+  MIT License
+
+  Copyright (c) 2020 Alejandro Ambroa
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE. 
+*/
 
 #include <string.h>
 #include <stdio.h>
 #include "eval.h"
-#include "rol.h"
 
+// build T and NIL objects
+
+static TATOM t_atom = { "T" }; 
+static S_EXP_NODE t_atom_node = { ATOM, &t_atom }; 
+static const S_EXP T = &t_atom_node ;
+
+static TCONS nil_cons= { NULL, NULL }; 
+static S_EXP_NODE t_nil_node = { CONS, &nil_cons }; 
+static const S_EXP NIL = &t_nil_node;
 
 // utilities
-int atom_name_equal(S_EXP* exp, const char* name) {
-  return exp != NULL && exp != NIL && strcmpi(((TATOM*)exp->expr)->name, name) == 0;
+
+static int empty_list(S_EXP sexp) {
+  return !s_exp_atom(sexp) && s_exp_get_car(sexp) == NULL && s_exp_get_cdr == NULL;
 }
 
-
-//axioms
-S_EXP* quote(S_EXP* s_expr) {
-    return s_expr;
+int atom_name_equal(S_EXP sexp, const char* name) {
+  return s_exp_atom(sexp) && strcmpi(s_exp_atom_name(sexp), name) == 0;
 }
 
-S_EXP* atom(S_EXP* s_expr) {
-  if (rol_empty_list(s_expr)) return T;
-  if (s_expr->type == ATOM) {
+/*
+ Primitives (chapter 1)
+ 
+ Primitive implementations except cond.
+ 
+ It is no possible implement cond primitve in the same way as paper. 
+*/
+
+S_EXP quote(S_EXP a) {
+    return a;
+}
+
+S_EXP atom(S_EXP sexp) {
+  if (empty_list(sexp)) return T;
+  if (s_exp_atom(sexp)) {
     return T;
   }
   return NIL;
 }
 
-S_EXP* eq(S_EXP* a, S_EXP* b) {
-  return (a->type == ATOM && b->type == ATOM && strcmpi(rol_get_atom_name(a), rol_get_atom_name(b)) == 0) || (rol_nil(a) && rol_nil(b)) ? T : NIL;
+S_EXP eq(S_EXP x, S_EXP y) {
+  return (s_exp_atom(x) && s_exp_atom(y) && strcmpi(s_exp_atom_name(x), s_exp_atom_name(y)) == 0) || (empty_list(x) && empty_list(y)) ? T : NIL;
 }
 
-S_EXP* car(S_EXP* expr) { 
-  return rol_get_car(expr);
+S_EXP car(S_EXP x) { 
+  return s_exp_get_car(x);
 }
 
-S_EXP* cdr(S_EXP* expr) { 
-  return rol_get_cdr(expr);
+S_EXP cdr(S_EXP x) { 
+  return s_exp_get_cdr(x);
 }
 
-S_EXP* cons(S_EXP* expr1, S_EXP* expr2) { 
-  return rol_make_cons(expr1, expr2);
+S_EXP cons(S_EXP x, S_EXP y) { 
+  return s_exp_create_cons(x, y);
 }
 
-// abbreviations
-S_EXP* cadr(S_EXP* expr) {
-  return car(cdr(expr));
+
+/*
+
+  Abbreviations (CHapter 3)
+
+  Implements abbreviations for eval function.
+
+  In the paper, the use of the 'list' function was reduced to 
+  two parameters. So I have omitted the list implementation so 
+  I don't have to deal with varargs, making use of conses.
+
+*/
+
+S_EXP cadr(S_EXP sexp) {
+  return car(cdr(sexp));
 }
 
-S_EXP* caddr(S_EXP* expr) {
-  return car(cdr(cdr(expr)));
+S_EXP caddr(S_EXP sexp) {
+  return car(cdr(cdr(sexp)));
 }
 
-S_EXP* cdar(S_EXP* expr) {
-  return cdr(car(expr));
+S_EXP cdar(S_EXP sexp) {
+  return cdr(car(sexp));
 }
 
-S_EXP* caar(S_EXP* expr) {
-  return car(car(expr));
+S_EXP caar(S_EXP sexp) {
+  return car(car(sexp));
 }
 
-S_EXP* cadar(S_EXP* expr) {
-  return car(cdr(car(expr)));
+S_EXP cadar(S_EXP sexp) {
+  return car(cdr(car(sexp)));
 }
 
-S_EXP* caddar(S_EXP* expr) {
-  return car((cdr(cdr(car(expr)))));
+S_EXP caddar(S_EXP sexp) {
+  return car((cdr(cdr(car(sexp)))));
 }
 
-// functions (Chapter 3)
+S_EXP _null(S_EXP x) {
+  return eq(x, NIL);
+}
 
-S_EXP* _null(S_EXP* expr) {
-  if (expr == NIL || rol_empty_list(expr)) {
-    return T;
+S_EXP and(S_EXP x, S_EXP y) {
+  return (!empty_list(x) && !empty_list(y)) ? T : NIL;
+}
+
+S_EXP not(S_EXP x) {
+  return empty_list(x) ? T : NIL;
+}
+
+S_EXP append(S_EXP x, S_EXP y) {
+  if (!empty_list(_null(x))) {
+    return y;
   }
-  return NIL;
+  return cons(car(x), append(cdr(x), y));
 }
 
-S_EXP* and(S_EXP* expr1, S_EXP* expr2) {
-  if (expr1 == T && expr2 == T) {
-    return T;
-  }
-  return NIL;
-}
-
-S_EXP* not(S_EXP* expr1) {
-  if (rol_t(expr1)) {
+S_EXP pair(S_EXP x, S_EXP y) {
+  if (!empty_list( and( _null(x), _null(y)))) {
     return NIL;
   }
-  return T;
-}
-
-S_EXP* append(S_EXP* expr1, S_EXP* expr2) {
-  if (rol_t(_null(expr1)) ) {
-    return expr2;
-  }
-  return cons(car(expr1), append(cdr(expr1), expr2));
-}
-
-S_EXP* pair(S_EXP* expr1, S_EXP* expr2) {
-  if (rol_t( and( _null(expr1), _null(expr2)))) {
-    return NIL;
-  }
-  if (rol_t(and(not(atom(expr1)), not(atom(expr2)) ))) {
-    return cons(rol_make_cons(car(expr1), rol_make_cons(car(expr2), NIL)), pair(cdr(expr1), cdr(expr2)));
+  if (!empty_list(and(not(atom(x)), not(atom(y)) ))) {
+    return cons(s_exp_create_cons(car(x), s_exp_create_cons(car(y), NIL)), pair(cdr(x), cdr(y)));
   }
   return NIL;
 }
 
-S_EXP* assoc(S_EXP* expr1, S_EXP* expr2) {
-  if (expr2 == NIL) return NIL;
-  if (rol_t(eq(caar(expr2), expr1) )) {
-    return cadar(expr2);
+S_EXP assoc(S_EXP x, S_EXP y) {
+  if (empty_list(y)) return NIL;
+  if (!empty_list(eq(caar(y), x) )) {
+    return cadar(y);
   }
-  return assoc(expr1, cdr(expr2));
+  return assoc(x, cdr(y));
 }
 
-// evaluator
+// evaluator (Chapter 4)
 
-S_EXP* evcon(S_EXP* c, S_EXP* a) {
-  S_EXP* result = NULL;
-  if (rol_t(eval(caar(c), a))) {
+S_EXP evcon(S_EXP c, S_EXP a) {
+  S_EXP result = NULL;
+  if (!empty_list(eval(caar(c), a))) {
     result = eval(cadar(c), a);
   } else {
     result = evcon(cdr(c), a);
@@ -125,9 +168,9 @@ S_EXP* evcon(S_EXP* c, S_EXP* a) {
   return result;
 }
 
-S_EXP* evlis(S_EXP* m, S_EXP* a) {
-  S_EXP* result = NULL;
-  if (rol_t(_null(m))) {
+S_EXP evlis(S_EXP m, S_EXP a) {
+  S_EXP result = NULL;
+  if (!empty_list(_null(m))) {
     result = NIL;
   } else {
     result = cons(eval(car(m), a), evlis(cdr(m), a));
@@ -136,14 +179,12 @@ S_EXP* evlis(S_EXP* m, S_EXP* a) {
 }
 
 
-S_EXP* eval(S_EXP* e, S_EXP* a) {
-  S_EXP* result = NIL;
-  if (rol_t(atom(e))) {
+S_EXP eval(S_EXP e, S_EXP a) {
+  S_EXP result = NIL;
+  if (!empty_list(atom(e))) {
     result = assoc(e, a);
-  } else if (rol_t(atom(car(e)))) {
+  } else if (!empty_list(atom(car(e)))) {
     if (atom_name_equal(car(e), "quote")) {
-      result = cadr(e);
-    } else if (atom_name_equal(car(e), "quote")) {
       result = cadr(e);
     } else if (atom_name_equal(car(e), "atom")) {
       result = atom(eval(cadr(e),a));
@@ -161,8 +202,8 @@ S_EXP* eval(S_EXP* e, S_EXP* a) {
       result = eval(cons(assoc(car(e), a), cdr(e)), a);
     }
   } else if (atom_name_equal(caar(e), "label")) {
-    result = eval( cons(caddar(e), cdr(e)), 
-                  cons(rol_make_cons(cadar(e), rol_make_cons(car(e), NIL)), a)); 
+    result = eval(cons(caddar(e), cdr(e)), 
+                  cons(s_exp_create_cons(cadar(e), s_exp_create_cons(car(e), NIL)), a)); 
   } else if (atom_name_equal(caar(e), "lambda")) {
     result = eval(caddar(e), append( pair(cadar(e), evlis(cdr(e), a)) , a));
   }
