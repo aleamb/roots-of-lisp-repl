@@ -4,7 +4,8 @@
 #include <string.h>
 #include "sexp.h"
 #include "parser.h"
-//#include "eval.h"
+#include "rol.h"
+#include "print.h"
 
 
 S_EXP rol_read(FILE* stream) {
@@ -37,14 +38,16 @@ S_EXP* init_environment() {
 
 int main(int argc, char** argv) {
 
-   // S_EXP* environment = init_environment();
+   S_EXP environment = rol_create_environment();
 
     while (!feof(stdin)) {
-        S_EXP expr = rol_read(stdin);
-        //print(expr);
-        //print(eval(expr, environment));
-        s_exp_free(expr);
+        S_EXP sexp = rol_read(stdin);
+        
+        print(sexp);
+        printf("\n");
+        print(eval(sexp, environment));
+        s_exp_free(sexp);
     }
-
+    s_exp_free(environment);
     return 0;
 }

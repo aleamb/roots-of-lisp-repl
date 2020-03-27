@@ -23,6 +23,7 @@
 */
 
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include "parser.h"
 
@@ -55,6 +56,7 @@ static int atom_valid_char( char c) {
 static void lexer_init(S_EXP_LEX* lexer, FILE* stream) {
   lexer->stream = stream;
   memset(lexer->buffer, 0, sizeof(lexer->buffer));
+  lexer->buffer_index = 0;
   lexer->line = 1;
   lexer->position = 0;
 }
@@ -167,7 +169,10 @@ S_EXP s_expression(S_EXP_LEX* lexer) {
 }
 
 S_EXP parse(FILE* stream) {
-    S_EXP_LEX lexer;
-    lexer_init(&lexer, stream);
-    return s_expression(&lexer);
+  S_EXP result = NULL;
+  S_EXP_LEX* lexer = (S_EXP_LEX*)malloc(sizeof(S_EXP_LEX));
+  lexer_init(lexer, stream);
+  result = s_expression(lexer);
+  free(lexer);
+  return result;
 }

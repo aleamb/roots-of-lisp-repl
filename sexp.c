@@ -85,7 +85,7 @@ static void set_cdr(S_EXP sexp, S_EXP cdr) {
 static S_EXP get_car(S_EXP sexp) {
   if (!is_atom(sexp)) {
     TCONS* cons = (TCONS*)(sexp->expr);
-    if (!cons) return cons->car;
+    if (cons) return cons->car;
   }
   return NULL;
 }
@@ -93,8 +93,7 @@ static S_EXP get_car(S_EXP sexp) {
 static S_EXP get_cdr(S_EXP sexp) {
   if (!s_exp_atom(sexp)) {
     TCONS* cons = (TCONS*)(sexp->expr);
-    if (!cons) return NULL;
-    return cons->cdr;
+    if (cons) return cons->cdr;
   }
   return NULL;
 }

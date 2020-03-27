@@ -62,6 +62,6 @@ static void _s_exp_print(S_EXP sexp, int level) {
     }
 }
 
-void prnt(S_EXP sexp) {
+void print(S_EXP sexp) {
   _s_exp_print(sexp, 0);
 }

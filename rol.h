@@ -26,7 +26,7 @@
 
 #include "sexp.h"
 
-extern S_EXP T, NIL;
+extern const S_EXP T, NIL;
 
 S_EXP eval(S_EXP, S_EXP);
 
