@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "rol.h"
+#include "sexp.h"
 #include "parser.h"
 #include "eval.h"
 
@@ -17,10 +17,25 @@ void print(S_EXP* s_exp) {
   printf("\n");
 }
 
+S_EXP* init_environment() {
+
+  S_EXP* env = NULL;
+
+  TATOM* atom = (TATOM*)malloc(sizeof(TATOM));
+  atom->name = ATOM_NAME_T;
+  T = (S_EXP*)malloc(sizeof(S_EXP));
+  T->type = ATOM;
+  T->expr = atom;
+
+  NIL = rol_make_cons(NULL, NULL);
+  env = rol_make_cons(rol_make_cons(T, rol_make_cons(T, NULL)), NULL);
+
+  return env;
+}
+
 int main(int argc, char** argv) {
 
-    
-    S_EXP* environment = rol_init_environment();
+    S_EXP* environment = init_environment();
 
     while (!feof(stdin)) {
         S_EXP* expr = rol_read(stdin);

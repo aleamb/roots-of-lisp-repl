@@ -17,7 +17,7 @@ S_EXP* quote(S_EXP* s_expr) {
 }
 
 S_EXP* atom(S_EXP* s_expr) {
-  if (!s_expr || s_expr == NIL || rol_empty_list(s_expr)) return T;
+  if (rol_empty_list(s_expr)) return T;
   if (s_expr->type == ATOM) {
     return T;
   }

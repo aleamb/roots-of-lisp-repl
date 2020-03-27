@@ -1,8 +1,7 @@
 
-
-#include "parser.h"
 #include <string.h>
 #include <ctype.h>
+#include "parser.h"
 
 typedef enum {
   TOKEN_LIST_OPEN,
