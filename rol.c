@@ -39,7 +39,7 @@ const S_EXP NIL = &t_nil_node;
 // utilities
 
 static int empty_list(S_EXP sexp) {
-  return !s_exp_atom(sexp) && s_exp_get_car(sexp) == NULL && s_exp_get_cdr == NULL;
+  return !s_exp_atom(sexp) && s_exp_get_car(sexp) == NULL && s_exp_get_cdr(sexp) == NULL;
 }
 
 int atom_name_equal(S_EXP sexp, const char* name) {
@@ -71,15 +71,17 @@ S_EXP eq(S_EXP x, S_EXP y) {
 }
 
 S_EXP car(S_EXP x) { 
-  return s_exp_get_car(x);
+  S_EXP sexp = s_exp_get_car(x);
+  return sexp ? sexp : NIL; 
 }
 
 S_EXP cdr(S_EXP x) { 
-  return s_exp_get_cdr(x);
+  S_EXP sexp = s_exp_get_cdr(x);
+  return sexp ? sexp : NIL; 
 }
 
 S_EXP cons(S_EXP x, S_EXP y) { 
-  return s_exp_create_cons(x, y);
+  return s_exp_create_cons(x ? x : NIL, y ? y : NIL);
 }
 
 
