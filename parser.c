@@ -45,7 +45,7 @@ typedef struct {
   TOKEN token;
 } S_EXP_LEX;
 
-const char* atom_chars = ".?_-\\/¿!¡=%&$@~¬";
+const char* atom_chars = ".?_-\\/¿!¡=%&$@~¬+-*~<>";
 
 S_EXP s_expression(S_EXP_LEX* lexer);
 
