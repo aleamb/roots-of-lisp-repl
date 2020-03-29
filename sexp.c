@@ -184,6 +184,8 @@ void s_exp_free(S_EXP sexp) {
     s_exp_free(get_cdr(sexp));
     s_exp_free(get_car(sexp));
 
+    printf("liberando: ");
+    print(sexp);
     free(sexp);
     mallocs--;
     
