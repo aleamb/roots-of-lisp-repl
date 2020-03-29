@@ -29,11 +29,11 @@
 // build T and NIL objects
 
 static TATOM t_atom = { "T" }; 
-static S_EXP_NODE t_atom_node = { ATOM, &t_atom, NULL }; 
+static S_EXP_NODE t_atom_node = { ATOM, 0, &t_atom, NULL }; 
 const S_EXP T = &t_atom_node ;
 
 static TCONS nil_cons= { NULL, NULL }; 
-static S_EXP_NODE t_nil_node = { CONS, NULL, &nil_cons }; 
+static S_EXP_NODE t_nil_node = { CONS, 0, NULL, &nil_cons }; 
 const S_EXP NIL = &t_nil_node;
 
 // utilities

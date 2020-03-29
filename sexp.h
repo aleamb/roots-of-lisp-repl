@@ -41,6 +41,7 @@ typedef struct _cons {
 
 typedef struct _S_EXP_NODE {
     S_EXP_TYPE type;
+    int disposable;
     TATOM* atom;
     TCONS* cons;
 } S_EXP_NODE;

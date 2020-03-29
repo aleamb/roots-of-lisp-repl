@@ -32,7 +32,7 @@ typedef enum {
   TOKEN_LIST_CLOSE,
   TOKEN_QUOTE,
   TOKEN_ATOM,
-  TOKEN_NOT_VALID
+  NO_TOKEN
 } TOKEN;
 
 typedef struct {
@@ -42,6 +42,7 @@ typedef struct {
   int buffer_index;
   int line;
   int position;
+  int status;
   TOKEN token;
 } S_EXP_LEX;
 
@@ -59,6 +60,7 @@ static void lexer_init(S_EXP_LEX* lexer, FILE* stream) {
   lexer->buffer_index = 0;
   lexer->line = 1;
   lexer->position = 0;
+  lexer->status = 0;
 }
 
 TOKEN next_token(S_EXP_LEX* lexer, int peek) {
@@ -67,9 +69,15 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
   int ti = 0;
   int token_available = 0;
   int prior_buffer_pos = lexer->buffer_index;
+  lexer->status = 0;
   while (!token_available) {
     if (!(lexer->buffer[lexer->buffer_index])) {
       fgets(lexer->buffer, EXPR_SIZE, lexer->stream);
+      if (feof(lexer->stream)) {
+        lexer->status = 1;
+        return lexer->token;
+      }
+      lexer->status = 1;
       lexer->buffer_index = 0;
       prior_buffer_pos = 0;
     }
@@ -109,7 +117,7 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
             lexer->token_value[ti++] = c;
           } else {
              fprintf(stderr, "Not valid atom character %c at position %d in line %d\n", c, lexer->position, lexer->line);
-             return TOKEN_NOT_VALID;
+             return lexer->token;
           }
       }
     } else {
@@ -154,6 +162,8 @@ S_EXP s_list(S_EXP_LEX* lexer) {
 
 S_EXP s_expression(S_EXP_LEX* lexer) {
   TOKEN token = next_token(lexer, 0);
+  if (lexer->status)
+    return NULL;
   S_EXP sexp = NULL;
   if (token == TOKEN_LIST_OPEN) {
     sexp = s_list(lexer);
@@ -164,6 +174,7 @@ S_EXP s_expression(S_EXP_LEX* lexer) {
       sexp = s_exp_create_atom(lexer->token_value);
   } else {
     fprintf(stderr, "Syntax error in line %d, position %d\n", lexer->line, lexer->buffer_index);
+    return NULL;
   }
   return sexp;
 }

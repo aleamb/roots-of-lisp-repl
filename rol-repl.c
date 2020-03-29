@@ -7,7 +7,7 @@
 #include "rol.h"
 #include "print.h"
 
-
+extern int mallocs;
 
 S_EXP create_environment() {
 
@@ -30,9 +30,14 @@ int main(int argc, char** argv) {
 
     while (!feof(stdin)) {
         S_EXP sexp = rol_read(stdin);
-        print(eval(sexp, environment));
-        printf("\n");
+        if (sexp) {
+          print(eval(sexp, environment));
+          printf("\n");
+        }
     }
+
+    printf("Mallocs: %d\n", mallocs);
     s_exp_free(environment);
+    printf("Mallocs: %d\n", mallocs);
     return 0;
 }

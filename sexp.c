@@ -33,6 +33,7 @@ static S_EXP create_sexp(S_EXP_TYPE type, void* data) {
   S_EXP sexp = (S_EXP_NODE*)malloc(sizeof(S_EXP_NODE));
   mallocs++;
   sexp->type = type;
+  sexp->disposable = 1;
   if (type == ATOM) {
     sexp->atom = data;
     sexp->cons = NULL;
@@ -124,8 +125,10 @@ static void free_atom(S_EXP sexp) {
     char* name = atom_name(sexp);
     if (name) {
       free(name);
+      mallocs--;
     }
     free(sexp);
+    mallocs--;
   }
 }
 
@@ -169,11 +172,16 @@ void s_exp_set_cdr(S_EXP sexp, S_EXP cdr) {
 }
 
 void s_exp_free(S_EXP sexp) {
+  print(sexp);
+  if (sexp == NULL) return;
   if (is_atom(sexp)) { 
-    free_atom(sexp);
+    if (sexp->disposable)
+      free_atom(sexp);
   } else {
-    s_exp_free(get_car(sexp));
+  
     s_exp_free(get_cdr(sexp));
+    s_exp_free(get_car(sexp));
     free(sexp);
+    
   }
 }
