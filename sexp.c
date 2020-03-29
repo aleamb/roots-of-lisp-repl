@@ -175,13 +175,17 @@ void s_exp_free(S_EXP sexp) {
   print(sexp);
   if (sexp == NULL) return;
   if (is_atom(sexp)) { 
-    if (sexp->disposable)
+    if (sexp->disposable) {
       free_atom(sexp);
+      mallocs--;
+    }
   } else {
   
     s_exp_free(get_cdr(sexp));
     s_exp_free(get_car(sexp));
+
     free(sexp);
+    mallocs--;
     
   }
 }
