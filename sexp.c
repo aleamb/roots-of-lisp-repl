@@ -30,7 +30,23 @@
 static S_EXP create_sexp(S_EXP_TYPE type, void* data) {
   S_EXP sexp = (S_EXP_NODE*)malloc(sizeof(S_EXP_NODE));
   sexp->type = type;
-  sexp->expr = data;
+  if (type == ATOM) {
+    sexp->atom = data;
+    sexp->cons = NULL;
+  } else {
+    sexp->cons = data;
+    sexp->atom = NULL;
+  }
+  return sexp;
+}
+
+static S_EXP create_sexp_atom() {
+  S_EXP sexp = create_sexp(ATOM, NULL);
+  return sexp;
+}
+
+static S_EXP create_sexp_cons() {
+  S_EXP sexp = create_sexp(CONS, NULL);
   return sexp;
 }
 
@@ -48,7 +64,7 @@ static int is_atom(S_EXP sexp) {
 
 static char* atom_name(S_EXP sexp) {
   if (is_atom(sexp)) {
-    return ((TATOM*)sexp->expr)->name;
+    return sexp->atom->name;
   }
   return NULL;
 }
@@ -72,26 +88,26 @@ static TCONS* create_cons_node() {
 
 static void set_car(S_EXP sexp, S_EXP car) {
   if (!s_exp_atom(sexp)) {
-    ((TCONS*)(sexp->expr))->car = car;
+    sexp->cons->car = car;
   }
 }
 
 static void set_cdr(S_EXP sexp, S_EXP cdr) {
   if (!s_exp_atom(sexp)) {
-    ((TCONS*)(sexp->expr))->cdr = cdr;
+    sexp->cons->cdr = cdr;
   }
 }
 
 static S_EXP get_car(S_EXP sexp) {
-  if (!s_exp_atom(sexp) && sexp->expr) {
-    return ((TCONS*)(sexp->expr))->car;
+  if (!s_exp_atom(sexp) && sexp->cons) {
+    return sexp->cons->car;
   }
   return NULL;
 }
 
 static S_EXP get_cdr(S_EXP sexp) {
-  if (!s_exp_atom(sexp) && sexp->expr) {
-    return ((TCONS*)(sexp->expr))->cdr;
+  if (!s_exp_atom(sexp) && sexp->cons) {
+    return sexp->cons->cdr;
   }
   return NULL;
 }

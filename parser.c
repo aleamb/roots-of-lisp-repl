@@ -74,6 +74,7 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
       prior_buffer_pos = 0;
     }
     c = lexer->buffer[lexer->buffer_index++];
+    if (!peek) lexer->position++;
     if (c != '\n' && c != '\t' && c != ' ' && c != '\r') {
       switch (c) {
         case '(':
@@ -107,7 +108,7 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
           if (atom_valid_char(c)) {
             lexer->token_value[ti++] = c;
           } else {
-             fprintf(stderr, "Not valid atom character\n");
+             fprintf(stderr, "Not valid atom character %c at position %d in line %d\n", c, lexer->position, lexer->line);
              return TOKEN_NOT_VALID;
           }
       }
@@ -121,7 +122,6 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
       lexer->line++;
       lexer->position = 0;
     }
-    lexer->position++;
   }
   lexer->token_value[ti] = 0;
   if (peek) {

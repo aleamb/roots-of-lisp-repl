@@ -30,21 +30,23 @@ typedef enum {
     CONS
 } S_EXP_TYPE;
 
-typedef struct {
-    S_EXP_TYPE type;
-    void* expr;
-} S_EXP_NODE;
-
-typedef S_EXP_NODE* S_EXP;
-
 typedef struct _atom {
     char *name;
 } TATOM;
 
 typedef struct _cons {
-  S_EXP car;
-  S_EXP cdr;
+  struct _S_EXP_NODE* car;
+  struct _S_EXP_NODE* cdr;
 } TCONS;
+
+typedef struct _S_EXP_NODE {
+    S_EXP_TYPE type;
+    TATOM* atom;
+    TCONS* cons;
+} S_EXP_NODE;
+
+typedef S_EXP_NODE* S_EXP;
+
 
 int s_exp_atom(S_EXP);
 
