@@ -140,9 +140,6 @@ S_EXP append(S_EXP x, S_EXP y) {
 }
 
 S_EXP pair(S_EXP x, S_EXP y) {
-  if (atom(x) && strcmpi(s_exp_atom_name(x), "z") == 0) {
-    print(y);
-  }
   if (!empty_list( and( _null(x), _null(y)))) {
     return NIL;
   }
@@ -208,16 +205,7 @@ S_EXP eval(S_EXP e, S_EXP a) {
   } else if (atom_name_equal(caar(e), "label")) {
     result = eval(cons(caddar(e), cdr(e)), 
                   cons(s_exp_create_cons(cadar(e), s_exp_create_cons(car(e), NULL)), a)); 
-
   } else if (atom_name_equal(caar(e), "lambda")) {
-    print(caddar(e));
-    puts("");
-    print(cadar(e));
-    puts("");
-    print(evlis(cdr(e), a));
-    printf("\n");
-    print(pair(cadar(e), evlis(cdr(e), a)));
-    printf("\n------\n");
     result = eval(caddar(e), append( pair(cadar(e), evlis(cdr(e), a)) , a));
   }
   return result;
