@@ -154,6 +154,10 @@ S_EXP s_exp_get_cdr(S_EXP sexp) {
   return get_cdr(sexp);
 }
 
+void s_exp_set_car(S_EXP sexp, S_EXP car) {
+  set_car(sexp, car);
+}
+
 void s_exp_set_cdr(S_EXP sexp, S_EXP cdr) {
   set_cdr(sexp, cdr);
 }

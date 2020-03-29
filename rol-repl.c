@@ -13,7 +13,6 @@ S_EXP create_environment() {
 
   S_EXP env = NULL;
   env = s_exp_create_cons(s_exp_create_cons(T, s_exp_create_cons(T, NULL)), NULL);
-
   return env;
 }
 
@@ -27,13 +26,12 @@ int main(int argc, char** argv) {
 
    S_EXP environment = create_environment();
 
+   printf("%p\n", environment);
+
     while (!feof(stdin)) {
         S_EXP sexp = rol_read(stdin);
-        //print(sexp);
-        //printf("\n");
         print(eval(sexp, environment));
         printf("\n");
-        s_exp_free(sexp);
     }
     s_exp_free(environment);
     return 0;

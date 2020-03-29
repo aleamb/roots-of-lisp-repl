@@ -157,6 +157,39 @@ S_EXP assoc(S_EXP x, S_EXP y) {
   return assoc(x, cdr(y));
 }
 
+S_EXP defun(S_EXP m, S_EXP a) {
+  // create ((label f lambda (params))
+
+  S_EXP label = cons(cons(s_exp_create_atom("label"), cons(cadr(m), cons(cons(
+                                      s_exp_create_atom("lambda"),
+                                      cons(caddr(m), cdr(cdr(cdr(m))))),
+                                  NULL
+                                ))) , NULL);
+  S_EXP sexp = a;
+  S_EXP to_delete = NULL;
+  while (sexp != NIL) {
+    if (!empty_list(eq(caar(sexp),cadr(m)))) {
+      S_EXP to_delete = s_exp_get_car(sexp);
+      s_exp_set_car(sexp, cadr(sexp));
+      s_exp_set_cdr(sexp, cdr(cdr(sexp)));
+      break;
+    }
+    sexp = cdr(sexp);
+  }
+  
+  S_EXP car = s_exp_get_car(a);
+
+  s_exp_set_car(a, cons(cadr(m), label));
+  s_exp_set_cdr(a, cons(car, s_exp_get_cdr(a)));
+
+  if (to_delete) {
+    s_exp_free(to_delete);
+  }
+
+ return label;
+}
+
+
 // evaluator (Chapter 4)
 
 S_EXP evcon(S_EXP c, S_EXP a) {
@@ -179,7 +212,6 @@ S_EXP evlis(S_EXP m, S_EXP a) {
   return result;
 }
 
-
 S_EXP eval(S_EXP e, S_EXP a) {
   S_EXP result = NIL;
   if (!empty_list(atom(e))) {
@@ -199,6 +231,14 @@ S_EXP eval(S_EXP e, S_EXP a) {
       result = cons( eval(cadr(e), a), eval(caddr(e), a));
     } else if (atom_name_equal(car(e), "cond")) {
       result = evcon(cdr(e), a);
+    } else if (atom_name_equal(car(e), "defun")) {
+      /*
+        This extra code added to original eval function the  implementation 
+        of defun calls as and internal C function which assocs defun code with 
+        defun first parameter (name of function) and adds it to top level 
+        environment.
+      */
+      result = defun(e, a);
     } else {
       result = eval(cons(assoc(car(e), a), cdr(e)), a);
     }

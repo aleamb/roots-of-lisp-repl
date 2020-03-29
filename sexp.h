@@ -60,6 +60,8 @@ S_EXP s_exp_get_car(S_EXP);
 
 S_EXP s_exp_get_cdr(S_EXP);
 
+void s_exp_set_car(S_EXP, S_EXP);
+
 void s_exp_set_cdr(S_EXP, S_EXP);
 
 void s_exp_free(S_EXP s_exp);
