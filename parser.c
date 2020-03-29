@@ -77,7 +77,7 @@ TOKEN next_token(S_EXP_LEX* lexer, int peek) {
         lexer->status = 1;
         return lexer->token;
       }
-      lexer->status = 1;
+      lexer->status = 0;
       lexer->buffer_index = 0;
       prior_buffer_pos = 0;
     }

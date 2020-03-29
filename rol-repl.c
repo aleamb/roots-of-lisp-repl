@@ -25,9 +25,7 @@ S_EXP rol_read(FILE* stream) {
 int main(int argc, char** argv) {
 
    S_EXP environment = create_environment();
-
-   printf("%p\n", environment);
-
+  
     while (!feof(stdin)) {
         S_EXP sexp = rol_read(stdin);
         if (sexp) {
@@ -35,9 +33,6 @@ int main(int argc, char** argv) {
           printf("\n");
         }
     }
-
-    printf("Mallocs: %d\n", mallocs);
     s_exp_free(environment);
-    printf("Mallocs: %d\n", mallocs);
     return 0;
 }

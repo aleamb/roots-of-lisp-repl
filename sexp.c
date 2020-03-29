@@ -26,12 +26,9 @@
 #include <string.h>
 #include "sexp.h"
 
-int mallocs = 0;
-
 
 static S_EXP create_sexp(S_EXP_TYPE type, void* data) {
   S_EXP sexp = (S_EXP_NODE*)malloc(sizeof(S_EXP_NODE));
-  mallocs++;
   sexp->type = type;
   sexp->disposable = 1;
   if (type == ATOM) {
@@ -75,19 +72,16 @@ static char* atom_name(S_EXP sexp) {
 
 static S_EXP set_atom_name(TATOM* sexp, const char* name) {
   sexp->name = strdup(name);
-  mallocs++;
 }
 
 static TATOM* create_atom_node(const char* name) {
   TATOM* atom = (TATOM*)malloc(sizeof(TATOM));
-  mallocs++;
   set_atom_name(atom, name);
   return atom;
 }
 
 static TCONS* create_cons_node() {
   TCONS *cons = (TCONS*)malloc(sizeof(TCONS));
-  mallocs++;
   cons->car = NULL;
   cons->cdr = NULL;
   return cons;
@@ -125,10 +119,8 @@ static void free_atom(S_EXP sexp) {
     char* name = atom_name(sexp);
     if (name) {
       free(name);
-      mallocs--;
     }
     free(sexp);
-    mallocs--;
   }
 }
 
@@ -172,22 +164,18 @@ void s_exp_set_cdr(S_EXP sexp, S_EXP cdr) {
 }
 
 void s_exp_free(S_EXP sexp) {
-  print(sexp);
   if (sexp == NULL) return;
   if (is_atom(sexp)) { 
     if (sexp->disposable) {
       free_atom(sexp);
-      mallocs--;
     }
   } else {
-  
-    s_exp_free(get_cdr(sexp));
-    s_exp_free(get_car(sexp));
 
-    printf("liberando: ");
-    print(sexp);
-    free(sexp);
-    mallocs--;
+    s_exp_free(get_car(sexp));
+    s_exp_free(get_cdr(sexp));
     
+    if (sexp != NULL && sexp->disposable) {
+      free(sexp);
+    }
   }
 }
