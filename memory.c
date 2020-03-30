@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "sexp.h"
-#include "ro.h"
+#include "rol.h"
 
 typedef struct _list {
 
@@ -57,7 +57,7 @@ void clean() {
 
     if (s_exp_atom((S_EXP)tmp->ptr)) {
       TATOM* atom = ((S_EXP)tmp->ptr)->atom;
-      if (atom != T && atom && atom->name) {
+      if ((S_EXP)atom != T && atom && atom->name) {
         free(atom->name);
       }
     }

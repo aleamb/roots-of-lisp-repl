@@ -34,10 +34,13 @@ cmake ..
 
 3. Execute make
 
+```
+make
+```
 
 ## REPL Session Example
 
-- Run ```rol``` executable. You will see the ROL (Roots of Lisp) REPL prompt
+- Run ```rol``` executable in build directory. You will see the ROL (Roots of Lisp) REPL prompt
 
 ```
 rol>
