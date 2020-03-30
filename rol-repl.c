@@ -40,25 +40,27 @@ S_EXP create_environment() {
   return env;
 }
 
-S_EXP rol_read(FILE* stream) {
+S_EXP rol_read(S_EXP_PARSER_CONTEXT* context) {
     printf("rol>");
-    return parse(stream);
+    return parse(context);
 }
 
 
 void repl(FILE * stream, S_EXP environment) {
 
+    S_EXP_PARSER_CONTEXT* context = init_parser(stream); 
     while (!feof(stream)) {
-        S_EXP sexp = rol_read(stream);
+        S_EXP sexp = rol_read(context);
         if (sexp) {
           print(eval(sexp, environment));
           printf("\n");
         }
     }
+    free(context);
 }
 
 void try_load_init_file(S_EXP environment) {
-  
+
   FILE* init_file = fopen("init.lisp", "r");
 
   if (init_file) {
@@ -68,8 +70,6 @@ void try_load_init_file(S_EXP environment) {
     puts("init.lisp loaded OK");
   }
 }
-
-
 
 int main(int argc, char** argv) {
 
