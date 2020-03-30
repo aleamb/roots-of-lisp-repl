@@ -21,17 +21,39 @@ S_EXP rol_read(FILE* stream) {
     return parse(stream);
 }
 
-int main(int argc, char** argv) {
 
-   S_EXP environment = create_environment();
-  
-    while (!feof(stdin)) {
-        S_EXP sexp = rol_read(stdin);
+void repl(FILE * stream, S_EXP environment) {
+
+    while (!feof(stream)) {
+        S_EXP sexp = rol_read(stream);
         if (sexp) {
           print(eval(sexp, environment));
           printf("\n");
         }
     }
-    clean();
-    return 0;
+}
+
+void try_load_init_file(S_EXP environment) {
+  
+  FILE* init_file = fopen("init.lisp", "r");
+
+  if (init_file) {
+    puts("init.lisp found. Loading...");
+    repl(init_file, environment);
+    fclose(init_file);
+    puts("init.lisp loaded OK");
+  }
+}
+
+
+
+int main(int argc, char** argv) {
+
+  S_EXP environment = create_environment();
+
+  try_load_init_file(environment);
+  repl(stdin, environment);
+  clean();
+
+  return 0;
 }
