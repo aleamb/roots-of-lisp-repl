@@ -19,7 +19,7 @@ Any improvements are welcome.
 
 ## Build
 
-Needs CMake >= 3.5
+CMake >= 3.5 required
 
 1. create directory named build in thh project root directory
 
