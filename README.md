@@ -2,11 +2,11 @@
 
 Lisp REPL implementation based on Paul Graham's article "The Roots of Lisp" http://www.paulgraham.com/rootsoflisp.html
 
-It has tried to be as precise as possible to the Paul Graham's Paper.
+It has tried to be as precise as possible to the Paul Graham's paper.
 
 As original paper, no arithmetic functions available.
 
-Any improvements are welcome.
+Any pull requests are welcome.
 
 
 - Additional features:
@@ -14,7 +14,7 @@ Any improvements are welcome.
 1. It has been added ```defun``` feature. Functions will be defined in top level scope.
 2. REPL search for init.lisp file on same directory. If available, it loads its contents. This can be useful for extending interpreter.
 3. Memory management for dynamic sexp objects created during evaluation. This manager is very simple, only storages sexp objects in a linked list and
-  transverse into it calling ```free``` libc function in each sexp object pointer. This ocurs closing REPL with Ctrl-D (Ctrl-Z on Windows)
+  transverse into it calling ```free``` libc function in each sexp object pointer. This occurs closing REPL with Ctrl-D (Ctrl-Z on Windows)
 
 
 ## Build

@@ -27,128 +27,109 @@
 #include <ctype.h>
 #include "parser.h"
 
-typedef enum {
-  TOKEN_LIST_OPEN,
-  TOKEN_LIST_CLOSE,
-  TOKEN_QUOTE,
-  TOKEN_ATOM,
-  NO_TOKEN
-} TOKEN;
+const char* atom_chars = ".?_-\\/¿!¡=&$@~¬+-*~<>%";
 
-typedef struct {
-  FILE* stream;
-  char buffer[EXPR_SIZE];
-  char token_value[ATOM_SIZE];
-  int buffer_index;
-  int line;
-  int position;
-  int status;
-  TOKEN token;
-} S_EXP_LEX;
-
-const char* atom_chars = ".?_-\\/¿!¡=%&$@~¬+-*~<>";
-
-S_EXP s_expression(S_EXP_LEX* lexer);
+S_EXP s_expression(S_EXP_PARSER_CONTEXT* lexer);
 
 static int atom_valid_char( char c) {
   return isalnum(c) || strchr(atom_chars, c) != NULL;
 }
 
-static void lexer_init(S_EXP_LEX* lexer, FILE* stream) {
-  lexer->stream = stream;
-  memset(lexer->buffer, 0, sizeof(lexer->buffer));
-  lexer->buffer_index = 0;
-  lexer->line = 1;
-  lexer->position = 0;
-  lexer->status = 0;
-  memset(lexer->token_value, 0, ATOM_SIZE);
+static void lexer_init(S_EXP_PARSER_CONTEXT* context, FILE* stream) {
+  context->stream = stream;
+  memset(context->buffer, 0, sizeof(context->buffer));
+  context->buffer_index = 0;
+  context->line = 1;
+  context->position = 0;
+  context->status = 0;
+  memset(context->token_value, 0, ATOM_SIZE);
 }
 
-TOKEN next_token(S_EXP_LEX* lexer, int peek) {
+TOKEN next_token(S_EXP_PARSER_CONTEXT* context, int peek) {
   
   char c = '\0';
   int ti = 0;
   int token_available = 0;
-  int prior_buffer_pos = lexer->buffer_index;
-  lexer->status = 0;
+  int prior_buffer_pos = context->buffer_index;
+  context->status = 0;
   while (!token_available) {
-    if (!(lexer->buffer[lexer->buffer_index])) {
-      fgets(lexer->buffer, EXPR_SIZE, lexer->stream);
-      if (feof(lexer->stream)) {
-        lexer->status = 1;
-        return lexer->token;
+    if (!(context->buffer[context->buffer_index])) {
+      fgets(context->buffer, EXPR_SIZE, context->stream);
+      if (feof(context->stream)) {
+        context->status = 1;
+        return context->token;
       }
-      lexer->status = 0;
-      lexer->buffer_index = 0;
+      context->status = 0;
+      context->buffer_index = 0;
       prior_buffer_pos = 0;
     }
-    c = lexer->buffer[lexer->buffer_index++];
-    if (!peek) lexer->position++;
+    c = context->buffer[context->buffer_index++];
+    if (!peek) context->position++;
     if (c != '\n' && c != '\t' && c != ' ' && c != '\r') {
       switch (c) {
         case '(':
           if (ti > 0) {
-            lexer->token = TOKEN_ATOM;
-            lexer->buffer_index -= 1;
+            context->token = TOKEN_ATOM;
+            context->buffer_index -= 1;
           } else {
-            lexer->token = TOKEN_LIST_OPEN;
+            context->token = TOKEN_LIST_OPEN;
           }
           token_available = 1;
           break;
         case ')':
           if (ti > 0) {
-            lexer->token = TOKEN_ATOM;
-            lexer->buffer_index -= 1;
+            context->token = TOKEN_ATOM;
+            context->buffer_index -= 1;
           } else {
-            lexer->token = TOKEN_LIST_CLOSE;
+            context->token = TOKEN_LIST_CLOSE;
           }
           token_available = 1;
           break;
         case '\'':
          if (ti > 0) {
-            lexer->token = TOKEN_ATOM;
-            lexer->buffer_index -= 1;
+            context->token = TOKEN_ATOM;
+            context->buffer_index -= 1;
           } else {
-            lexer->token = TOKEN_QUOTE;
+            context->token = TOKEN_QUOTE;
           }
           token_available = 1;
           break;
         default:
           if (atom_valid_char(c)) {
-            lexer->token_value[ti++] = c;
+            context->token_value[ti++] = c;
           } else {
-             fprintf(stderr, "Not valid atom character %c at position %d in line %d\n", c, lexer->position, lexer->line);
-             return lexer->token;
+             fprintf(stderr, "Not valid atom character %c at position %d in line %d\n", c, context->position, context->line);
+             return context->token;
           }
       }
     } else {
       if (ti > 0) {
-        lexer->token = TOKEN_ATOM;
+        context->token = TOKEN_ATOM;
         token_available = 1;
       }
     }
     if (c == '\n') {
-      lexer->line++;
-      lexer->position = 0;
+      context->line++;
+      context->position = 0;
     }
   }
-  lexer->token_value[ti] = 0;
+  context->token_value[ti] = 0;
   if (peek) {
-    lexer->buffer_index = prior_buffer_pos;
+    context->buffer_index = prior_buffer_pos;
   }
-  return lexer->token;
+  return context->token;
 }
 
-TOKEN peek_token(S_EXP_LEX* lexer) {
-  return next_token(lexer, 1);
+TOKEN peek_token(S_EXP_PARSER_CONTEXT* context) {
+  return next_token(context, 1);
 }
 
-S_EXP s_list(S_EXP_LEX* lexer) {
+S_EXP s_list(S_EXP_PARSER_CONTEXT* context) {
   S_EXP current = NULL;
   S_EXP list = NULL;
   TOKEN token;
-  while ((token = peek_token(lexer)) != TOKEN_LIST_CLOSE) {
-    S_EXP expr  = s_exp_create_cons(s_expression(lexer), NULL);
+  while ((token = peek_token(context)) != TOKEN_LIST_CLOSE) {
+    S_EXP expr  = s_exp_create_cons(s_expression(context), NULL);
     if (current != NULL) {
       s_exp_set_cdr(current, expr);
     } else {
@@ -156,35 +137,38 @@ S_EXP s_list(S_EXP_LEX* lexer) {
     }
     current = expr;
   }
-  next_token(lexer, 0);
+  next_token(context, 0);
 
   return list ? list : s_exp_create_cons(NULL, NULL);
 }
 
-S_EXP s_expression(S_EXP_LEX* lexer) {
-  TOKEN token = next_token(lexer, 0);
-  if (lexer->status)
+S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
+  TOKEN token = next_token(context, 0);
+  if (context->status)
     return NULL;
   S_EXP sexp = NULL;
   if (token == TOKEN_LIST_OPEN) {
-    sexp = s_list(lexer);
+    sexp = s_list(context);
   } else if (token == TOKEN_QUOTE) {
-    sexp = s_expression(lexer);
+    sexp = s_expression(context);
     sexp = s_exp_create_cons(s_exp_create_atom("quote"), s_exp_create_cons(sexp, NULL));
   } else if (token == TOKEN_ATOM) {
-      sexp = s_exp_create_atom(lexer->token_value);
+      sexp = s_exp_create_atom(context->token_value);
   } else {
-    fprintf(stderr, "Syntax error in line %d, position %d\n", lexer->line, lexer->buffer_index);
+    fprintf(stderr, "Syntax error in line %d, position %d\n", context->line, context->buffer_index);
     return NULL;
   }
   return sexp;
 }
 
-S_EXP parse(FILE* stream) {
+S_EXP parse(S_EXP_PARSER_CONTEXT* context) {
   S_EXP result = NULL;
-  S_EXP_LEX* lexer = (S_EXP_LEX*)malloc(sizeof(S_EXP_LEX));
-  lexer_init(lexer, stream);
-  result = s_expression(lexer);
-  free(lexer);
+  result = s_expression(context);
   return result;
+}
+
+S_EXP_PARSER_CONTEXT* init_parser(FILE* stream) {
+  S_EXP_PARSER_CONTEXT* context = (S_EXP_PARSER_CONTEXT*)malloc(sizeof(S_EXP_PARSER_CONTEXT));
+  lexer_init(context , stream);
+  return context;
 }
