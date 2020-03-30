@@ -2,9 +2,11 @@
 
 Lisp REPL implementation based on Paul Graham's article "The Roots of Lisp" http://www.paulgraham.com/rootsoflisp.html
 
-This a project for educationa purposes. It has tried to be as precise as possible to the Paul Graham's Paper.
+It has tried to be as precise as possible to the Paul Graham's Paper.
 
-As original paper, no arithmetic functions available. Any improvements are welcome.
+As original paper, no arithmetic functions available.
+
+Any improvements are welcome.
 
 
 - Additional features:
@@ -25,14 +27,14 @@ Needs CMake >= 3.5
 mkdir build
 ```
 
-2. Execute Cmake
+2. Execute CMake
 
 ```
 cmake ..
 
 ```
 
-3. Execute make
+3. Execute Make
 
 ```
 make
@@ -72,4 +74,3 @@ rol>
 ```
 
 End REPL session with EOF caharacter (Ctrl-D or Ctrl-Z on Windows)
-
