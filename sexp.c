@@ -44,22 +44,8 @@ static S_EXP create_sexp(S_EXP_TYPE type, void* data) {
   return sexp;
 }
 
-static S_EXP create_sexp_atom() {
-  S_EXP sexp = create_sexp(ATOM, NULL);
-  return sexp;
-}
-
-static S_EXP create_sexp_cons() {
-  S_EXP sexp = create_sexp(CONS, NULL);
-  return sexp;
-}
-
 static int sexp_type(S_EXP sexp) {
   return sexp->type;
-}
-
-static void sexp_set_type(S_EXP sexp, S_EXP_TYPE type) {
-  sexp->type = type;
 }
 
 static int is_atom(S_EXP sexp) {
@@ -73,7 +59,7 @@ static char* atom_name(S_EXP sexp) {
   return NULL;
 }
 
-static S_EXP set_atom_name(TATOM* sexp, const char* name) {
+static void set_atom_name(TATOM* sexp, const char* name) {
   sexp->name = strdup(name);
 }
 

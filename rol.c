@@ -166,10 +166,8 @@ S_EXP defun(S_EXP m, S_EXP a) {
                                   NULL
                                 ))) , NULL);
   S_EXP sexp = a;
-  S_EXP to_delete = NULL;
   while (sexp != NIL) {
     if (!empty_list(eq(caar(sexp),cadr(m)))) {
-      S_EXP to_delete = s_exp_get_car(sexp);
       s_exp_set_car(sexp, cadr(sexp));
       s_exp_set_cdr(sexp, cdr(cdr(sexp)));
       break;
@@ -181,10 +179,6 @@ S_EXP defun(S_EXP m, S_EXP a) {
 
   s_exp_set_car(a, cons(cadr(m), label));
   s_exp_set_cdr(a, cons(car, s_exp_get_cdr(a)));
-
-  if (to_delete) {
-    s_exp_free(to_delete);
-  }
 
  return label;
 }

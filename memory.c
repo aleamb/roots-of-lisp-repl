@@ -24,6 +24,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "sexp.h"
+#include "ro.h"
 
 typedef struct _list {
 
@@ -50,9 +52,16 @@ void clean() {
   SEXPLIST* curr = sexplist.next;
 
   while (curr) {
-    printf("liberado\n");
     SEXPLIST* tmp = curr;
     curr = curr->next;
+
+    if (s_exp_atom((S_EXP)tmp->ptr)) {
+      TATOM* atom = ((S_EXP)tmp->ptr)->atom;
+      if (atom != T && atom && atom->name) {
+        free(atom->name);
+      }
+    }
+    
     free(tmp->ptr);
     free(tmp);
   }

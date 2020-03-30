@@ -54,7 +54,7 @@ rol> (defun subst (x y z)
           (t (cons (subst x y (car z))
                   (subst x y (cdr z ))))))
 Output:
-((label subst (lambda (x y z) (cond ((atom z) (cond ((eq z y) x) ((quote t) z))) (t (cons (subst x y (car z)) (subst x y (cdr z))))))))
+((label subst (lambda (x y z) ...
 rol>
 
 ```
