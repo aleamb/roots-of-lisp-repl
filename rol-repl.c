@@ -7,7 +7,7 @@
 #include "rol.h"
 #include "print.h"
 
-extern int mallocs;
+extern void clean();
 
 S_EXP create_environment() {
 
@@ -15,7 +15,6 @@ S_EXP create_environment() {
   env = s_exp_create_cons(s_exp_create_cons(T, s_exp_create_cons(T, NULL)), NULL);
   return env;
 }
-
 
 S_EXP rol_read(FILE* stream) {
     printf("rol>");
@@ -33,6 +32,6 @@ int main(int argc, char** argv) {
           printf("\n");
         }
     }
-    s_exp_free(environment);
+    clean();
     return 0;
 }

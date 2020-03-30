@@ -27,8 +27,11 @@
 #include "sexp.h"
 
 
+extern void* s_exp_alloc(int);
+
+
 static S_EXP create_sexp(S_EXP_TYPE type, void* data) {
-  S_EXP sexp = (S_EXP_NODE*)malloc(sizeof(S_EXP_NODE));
+  S_EXP sexp = (S_EXP_NODE*)s_exp_alloc(sizeof(S_EXP_NODE));
   sexp->type = type;
   sexp->disposable = 1;
   if (type == ATOM) {
@@ -75,13 +78,13 @@ static S_EXP set_atom_name(TATOM* sexp, const char* name) {
 }
 
 static TATOM* create_atom_node(const char* name) {
-  TATOM* atom = (TATOM*)malloc(sizeof(TATOM));
+  TATOM* atom = (TATOM*)s_exp_alloc(sizeof(TATOM));
   set_atom_name(atom, name);
   return atom;
 }
 
 static TCONS* create_cons_node() {
-  TCONS *cons = (TCONS*)malloc(sizeof(TCONS));
+  TCONS *cons = (TCONS*)s_exp_alloc(sizeof(TCONS));
   cons->car = NULL;
   cons->cdr = NULL;
   return cons;
@@ -173,7 +176,7 @@ void s_exp_free(S_EXP sexp) {
 
     s_exp_free(get_car(sexp));
     s_exp_free(get_cdr(sexp));
-    
+
     if (sexp != NULL && sexp->disposable) {
       free(sexp);
     }
