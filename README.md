@@ -13,8 +13,8 @@ Any improvements are welcome.
 
 1. It has been added ```defun``` feature. Functions will be defined in top level scope.
 2. REPL search for init.lisp file on same directory. If available, it loads its contents. This can be useful for extending interpreter.
-3. Memory managmenet for dynamic sexp objects created during evaluation. This manager is very simple, only storgaes sexp objects in a linked list and
-  transverse into it to calling ```free```` libc function in each sexp object pointer. This ocurrs closing REPL with Ctrl-D (Ctrl-Z on Windows)
+3. Memory management for dynamic sexp objects created during evaluation. This manager is very simple, only storages sexp objects in a linked list and
+  transverse into it calling ```free```` libc function in each sexp object pointer. This ocurs closing REPL with Ctrl-D (Ctrl-Z on Windows)
 
 
 ## Build
@@ -55,7 +55,7 @@ rol>
 rol> (defun subst (x y z)
       (cond ((atom z)
          (cond ((eq z y) x)
-               ('t z)))
+               (t z)))
           (t (cons (subst x y (car z))
                   (subst x y (cdr z ))))))
 Output:
