@@ -54,13 +54,24 @@ void clean() {
   while (curr) {
     SEXPLIST* tmp = curr;
     curr = curr->next;
-
-    if (s_exp_atom((S_EXP)tmp->ptr)) {
-      TATOM* atom = ((S_EXP)tmp->ptr)->atom;
-      if ((S_EXP)atom != T && atom && atom->name) {
-        free(atom->name);
+    
+    if (tmp->ptr) {
+      if (s_exp_atom((S_EXP)tmp->ptr)) {
+        TATOM* atom = ((S_EXP)tmp->ptr)->atom;
+        if (atom && (S_EXP)atom != T) {
+          if (atom->name) {
+            free(atom->name);
+          }
+          free(atom);
+        }
+      } else {
+        TCONS* cons = ((S_EXP)tmp->ptr)->cons;
+        if (cons && (S_EXP)cons != T ) {
+          free(cons);
+        }
       }
     }
+    
     
     free(tmp->ptr);
     free(tmp);

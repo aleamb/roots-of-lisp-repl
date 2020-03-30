@@ -61,6 +61,7 @@ static void lexer_init(S_EXP_LEX* lexer, FILE* stream) {
   lexer->line = 1;
   lexer->position = 0;
   lexer->status = 0;
+  memset(lexer->token_value, 0, ATOM_SIZE);
 }
 
 TOKEN next_token(S_EXP_LEX* lexer, int peek) {

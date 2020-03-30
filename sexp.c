@@ -64,13 +64,13 @@ static void set_atom_name(TATOM* sexp, const char* name) {
 }
 
 static TATOM* create_atom_node(const char* name) {
-  TATOM* atom = (TATOM*)s_exp_alloc(sizeof(TATOM));
+  TATOM* atom = (TATOM*)malloc(sizeof(TATOM));
   set_atom_name(atom, name);
   return atom;
 }
 
 static TCONS* create_cons_node() {
-  TCONS *cons = (TCONS*)s_exp_alloc(sizeof(TCONS));
+  TCONS *cons = (TCONS*)malloc(sizeof(TCONS));
   cons->car = NULL;
   cons->cdr = NULL;
   return cons;
