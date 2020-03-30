@@ -72,7 +72,6 @@ void clean() {
       }
     }
     
-    
     free(tmp->ptr);
     free(tmp);
   }
