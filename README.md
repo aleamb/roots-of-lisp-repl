@@ -21,7 +21,7 @@ Any improvements are welcome.
 
 CMake >= 3.5 required
 
-1. create directory named build in thh project root directory
+1. create directory named build in the project's root directory
 
 ```
 mkdir build
