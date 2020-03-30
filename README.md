@@ -2,11 +2,11 @@
 
 Lisp REPL implementation based on Paul Graham's article "The Roots of Lisp" http://www.paulgraham.com/rootsoflisp.html
 
-It has tried to be as precise as possible to the Paul Graham's Paper.
+It has tried to be as precise as possible to the Paul Graham's paper.
 
 As original paper, no arithmetic functions available.
 
-Any improvements are welcome.
+Any pull requests are welcome.
 
 
 - Additional features:
