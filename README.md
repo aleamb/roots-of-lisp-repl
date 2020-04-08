@@ -21,10 +21,13 @@ Any pull requests are welcome.
 
 CMake >= 3.5 required
 
+On Windows, use CMake with MSBuild tools or MinGW/MSYS
+
 1. create directory named build in the project's root directory
 
 ```
 mkdir build
+
 ```
 
 2. Execute CMake
@@ -34,14 +37,16 @@ cmake ..
 
 ```
 
-3. Execute Make
+3. Execute Make if system is Linux/Unix/Mac/MinGW
+
+On Unix/Linux/MinGW based systems:
 
 ```
 make
 
 ```
 
-4. On Windows, use MsBuild to build
+If the system is Windows with MsBuild tools:
 
 ```
 msbuild rol.sln
@@ -50,7 +55,7 @@ msbuild rol.sln
 
 ## REPL Session Example
 
-- Run ```rol``` executable in build directory. You will see the ROL (Roots of Lisp) REPL prompt
+- Run ```rol``` executable in build directory (If using MSBuilt tools, excutable can be locate on Debug directory). You will see the ROL (Roots of Lisp) REPL prompt
 
 ```
 rol>
