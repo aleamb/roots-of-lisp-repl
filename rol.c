@@ -26,6 +26,12 @@
 #include <stdio.h>
 #include "rol.h"
 
+#ifdef _WINDOWS
+#define STRCMPI strcmpi
+#else
+#define STRCMPI strcasecmp
+#endif
+
 // build T and NIL objects
 
 static TATOM t_atom = { "T" }; 
@@ -43,7 +49,7 @@ static int empty_list(S_EXP sexp) {
 }
 
 int atom_name_equal(S_EXP sexp, const char* name) {
-  return s_exp_atom(sexp) && strcasecmp(s_exp_atom_name(sexp), name) == 0;
+  return s_exp_atom(sexp) && STRCMPI(s_exp_atom_name(sexp), name) == 0;
 }
 
 /*
@@ -66,7 +72,7 @@ S_EXP atom(S_EXP sexp) {
 }
 
 S_EXP eq(S_EXP x, S_EXP y) {
-  return (s_exp_atom(x) && s_exp_atom(y) && strcasecmp(s_exp_atom_name(x), s_exp_atom_name(y)) == 0) || (empty_list(x) && empty_list(y)) ? T : NIL;
+  return (s_exp_atom(x) && s_exp_atom(y) && STRCMPI(s_exp_atom_name(x), s_exp_atom_name(y)) == 0) || (empty_list(x) && empty_list(y)) ? T : NIL;
 }
 
 S_EXP car(S_EXP x) { 

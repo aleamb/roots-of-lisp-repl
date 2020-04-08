@@ -38,6 +38,14 @@ cmake ..
 
 ```
 make
+
+```
+
+4. On Windows, use MsBuild to build
+
+```
+msbuild rol.sln
+
 ```
 
 ## REPL Session Example
