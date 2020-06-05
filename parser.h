@@ -31,13 +31,13 @@
 #define EXPR_SIZE 512
 #define ATOM_SIZE 64
 
-
 typedef enum {
   TOKEN_LIST_OPEN,
   TOKEN_LIST_CLOSE,
   TOKEN_QUOTE,
   TOKEN_ATOM,
-  NO_TOKEN
+  TOKEN_INVALID,
+  TOKEN_EOF
 } TOKEN;
 
 typedef struct {
@@ -51,9 +51,7 @@ typedef struct {
   TOKEN token;
 } S_EXP_PARSER_CONTEXT;
 
-
 S_EXP parse(S_EXP_PARSER_CONTEXT*);
 S_EXP_PARSER_CONTEXT* init_parser(FILE* stream);
-
 
 #endif /* _PARSER_H_ */
