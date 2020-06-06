@@ -31,6 +31,7 @@ const char* atom_chars = ".?_-\\/¿!¡=&$@~¬+-*~<>%";
 const char* ignored_chars = " \n\t\r";
 
 S_EXP s_expression(S_EXP_PARSER_CONTEXT* lexer);
+S_EXP s_list(S_EXP_PARSER_CONTEXT* lexer);
 
 static int atom_valid_char(char c) {
   return isalnum(c) || strchr(atom_chars, c) != NULL;
@@ -43,11 +44,12 @@ static int is_ignore_char(char c) {
 static void lexer_init(S_EXP_PARSER_CONTEXT* context, FILE* stream) {
   context->stream = stream;
   memset(context->buffer, 0, sizeof(context->buffer));
-  context->buffer_index = 0;
+  context->buffer_index = -1;
   context->line = 0;
 }
 
 static char lexer_getchar(S_EXP_PARSER_CONTEXT* context) {
+	context->buffer_index++;
   if (context->buffer[context->buffer_index] == 0) {
     memset(context->token_value, 0, ATOM_SIZE);
     if (!fgets(context->buffer, EXPR_SIZE, context->stream))
@@ -55,16 +57,31 @@ static char lexer_getchar(S_EXP_PARSER_CONTEXT* context) {
     context->buffer_index = 0;
     context->position = 0;
     context->line++;
-    context->status = 0;
   }
   context->position++;
-  return context->buffer[context->buffer_index++];
+  return context->buffer[context->buffer_index];
 }
 
-TOKEN next_token(S_EXP_PARSER_CONTEXT* context, int peek) {
+static S_EXP s_expression_analyze(S_EXP_PARSER_CONTEXT* context, TOKEN token) {
+  S_EXP sexp = NULL;
+  if (token == TOKEN_EOF) return NULL;
+  if (token == TOKEN_INVALID) {
+    fprintf(stderr, "Lexical error at line %d, position %d - Token %s not expected\n", context->line, context->position, context->token_value);
+  } else if (token == TOKEN_LIST_OPEN) {
+    sexp = s_list(context);
+  } else if (token == TOKEN_QUOTE) {
+    sexp = s_expression(context);
+    sexp = s_exp_create_cons(s_exp_create_atom("quote"), s_exp_create_cons(sexp, NULL));
+  } else if (token == TOKEN_ATOM) {
+      sexp = s_exp_create_atom(context->token_value);
+  } else {
+     fprintf(stderr, "Syntax error at line %d, position %d\n", context->line, context->position);
+  }
+  return sexp;
+}
+
+TOKEN next_token(S_EXP_PARSER_CONTEXT* context) {
   char c = 0;
-  int bp = context->buffer_index;
-  context->status = 0;
   while (is_ignore_char( (c = lexer_getchar(context)) ));
   if (atom_valid_char(c)) {
     int n = 0;
@@ -72,56 +89,34 @@ TOKEN next_token(S_EXP_PARSER_CONTEXT* context, int peek) {
       context->token_value[n++] = c;
       c = lexer_getchar(context);
     } while(atom_valid_char(c));
+	context->buffer_index--;
     context->token = TOKEN_ATOM;
   } else {
       if (c == '\'') context->token = TOKEN_QUOTE;
       else if (c == '(') context->token = TOKEN_LIST_OPEN;
       else if (c == ')') context->token = TOKEN_LIST_CLOSE;
-      else {
-        context->token = TOKEN_INVALID; 
+      else if (c == EOF) context->token = TOKEN_EOF; 
+      else { 
         context->token_value[0] = c;
+        context->token = TOKEN_INVALID;
       }
   }
   return context->token;
 }
 
-TOKEN peek_token(S_EXP_PARSER_CONTEXT* context) {
-  return next_token(context, 1);
-}
-
 S_EXP s_list(S_EXP_PARSER_CONTEXT* context) {
-  S_EXP current = NULL;
-  S_EXP list = NULL;
-  TOKEN token;
-  while ((token = peek_token(context)) != TOKEN_LIST_CLOSE) {
-    S_EXP expr  = s_exp_create_cons(s_expression(context), NULL);
-    if (current != NULL) {
-      s_exp_set_cdr(current, expr);
-    } else {
-      list = expr;
-    }
-    current = expr;
+  TOKEN token = next_token(context);
+  if (token == TOKEN_EOF) {
+    fprintf(stderr, "EOF found at line %d, position %d\n", context->line, context->position);
+    return NULL;
   }
-  next_token(context, 0);
-
-  return list ? list : s_exp_create_cons(NULL, NULL);
+  if (token == TOKEN_LIST_CLOSE) return NULL;
+  return s_exp_create_cons(s_expression_analyze(context, token), s_list(context));
 }
 
 S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
-  TOKEN token = next_token(context, 0);
-  S_EXP sexp = NULL;
-  if (token == TOKEN_INVALID) {
-    fprintf(stderr, "Lexical error in line %d, position %d - Character %c not valid\n", context->line, context->buffer_index);
-  }
-  else if (token == TOKEN_LIST_OPEN) {
-    sexp = s_list(context);
-  } else if (token == TOKEN_QUOTE) {
-    sexp = s_expression(context);
-    sexp = s_exp_create_cons(s_exp_create_atom("quote"), s_exp_create_cons(sexp, NULL));
-  } else if (token == TOKEN_ATOM) {
-      sexp = s_exp_create_atom(context->token_value);
-  }
-  return sexp;
+  TOKEN token = next_token(context);
+  return s_expression_analyze(context, token);
 }
 
 S_EXP parse(S_EXP_PARSER_CONTEXT* context) {

@@ -47,7 +47,6 @@ typedef struct {
   int buffer_index;
   int line;
   int position;
-  int status;
   TOKEN token;
 } S_EXP_PARSER_CONTEXT;
 
