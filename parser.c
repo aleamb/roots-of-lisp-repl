@@ -44,12 +44,11 @@ static int is_ignore_char(char c) {
 static void lexer_init(S_EXP_PARSER_CONTEXT* context, FILE* stream) {
   context->stream = stream;
   memset(context->buffer, 0, sizeof(context->buffer));
-  context->buffer_index = -1;
+  context->buffer_index = 0;
   context->line = 0;
 }
 
 static char lexer_getchar(S_EXP_PARSER_CONTEXT* context) {
-	context->buffer_index++;
   if (context->buffer[context->buffer_index] == 0) {
     memset(context->token_value, 0, ATOM_SIZE);
     if (!fgets(context->buffer, EXPR_SIZE, context->stream))
@@ -59,7 +58,7 @@ static char lexer_getchar(S_EXP_PARSER_CONTEXT* context) {
     context->line++;
   }
   context->position++;
-  return context->buffer[context->buffer_index];
+  return context->buffer[context->buffer_index++];
 }
 
 static S_EXP s_expression_analyze(S_EXP_PARSER_CONTEXT* context, TOKEN token) {
@@ -89,6 +88,7 @@ TOKEN next_token(S_EXP_PARSER_CONTEXT* context) {
       context->token_value[n++] = c;
       c = lexer_getchar(context);
     } while(atom_valid_char(c));
+	context->token_value[n] = 0;
 	context->buffer_index--;
     context->token = TOKEN_ATOM;
   } else {
