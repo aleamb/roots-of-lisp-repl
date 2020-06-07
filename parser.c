@@ -111,7 +111,9 @@ S_EXP s_list(S_EXP_PARSER_CONTEXT* context) {
     return NULL;
   }
   if (token == TOKEN_LIST_CLOSE) return NULL;
-  return s_exp_create_cons(s_expression_analyze(context, token), s_list(context));
+  S_EXP car = s_expression_analyze(context, token);
+  S_EXP cdr = s_list(context);
+  return s_exp_create_cons(car, cdr);
 }
 
 S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
