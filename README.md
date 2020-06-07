@@ -21,37 +21,30 @@ Any pull requests are welcome.
 
 CMake >= 3.5 required
 
-On Windows, use CMake with MSBuild tools or MinGW/MSYS
+For Windows, use CMake from MinGW/MSYS, TDM-GCC MinGW prompt or Visual Studio Developer Commands Prompt
 
-1. create directory named build in the project's root directory
+1. create directory named build in the project's root directory and change directory
 
 ```
 mkdir build
+cd build
 
 ```
 
-2. Execute CMake
+2. Generate build files with CMake
 
 ```
 cmake ..
 
 ```
 
-3. Execute Make if system is Linux/Unix/Mac/MinGW
-
-On Unix/Linux/MinGW based systems:
+3. Build with CMake
 
 ```
-make
+cmake --build .
 
 ```
 
-If the system is Windows with MsBuild tools:
-
-```
-msbuild rol.sln
-
-```
 
 ## REPL Session Example
 
