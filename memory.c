@@ -33,7 +33,7 @@ typedef struct _list {
   struct _list* next;
 } SEXPLIST;
 
-SEXPLIST sexplist = { 0 };
+SEXPLIST sexplist = { NULL, NULL };
 SEXPLIST* sexplist_ptr = &sexplist;
 
 void* s_exp_alloc(int size) {

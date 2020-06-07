@@ -28,126 +28,45 @@
 #include "parser.h"
 
 const char* atom_chars = ".?_-\\/¿!¡=&$@~¬+-*~<>%";
+const char* ignored_chars = " \n\t\r";
 
 S_EXP s_expression(S_EXP_PARSER_CONTEXT* lexer);
+S_EXP s_list(S_EXP_PARSER_CONTEXT* lexer);
 
-static int atom_valid_char( char c) {
+static int atom_valid_char(char c) {
   return isalnum(c) || strchr(atom_chars, c) != NULL;
+}
+
+static int is_ignore_char(char c) {
+  return strchr(ignored_chars, c) != NULL;
 }
 
 static void lexer_init(S_EXP_PARSER_CONTEXT* context, FILE* stream) {
   context->stream = stream;
   memset(context->buffer, 0, sizeof(context->buffer));
   context->buffer_index = 0;
-  context->line = 1;
-  context->position = 0;
-  context->status = 0;
-  memset(context->token_value, 0, ATOM_SIZE);
+  context->line = 0;
 }
 
-TOKEN next_token(S_EXP_PARSER_CONTEXT* context, int peek) {
-  
-  char c = '\0';
-  int ti = 0;
-  int token_available = 0;
-  int prior_buffer_pos = context->buffer_index;
-  context->status = 0;
-  while (!token_available) {
-    if (!(context->buffer[context->buffer_index])) {
-      fgets(context->buffer, EXPR_SIZE, context->stream);
-      if (feof(context->stream)) {
-        context->status = 1;
-        return context->token;
-      }
-      context->status = 0;
-      context->buffer_index = 0;
-      prior_buffer_pos = 0;
-    }
-    c = context->buffer[context->buffer_index++];
-    if (!peek) context->position++;
-    if (c != '\n' && c != '\t' && c != ' ' && c != '\r') {
-      switch (c) {
-        case '(':
-          if (ti > 0) {
-            context->token = TOKEN_ATOM;
-            context->buffer_index -= 1;
-          } else {
-            context->token = TOKEN_LIST_OPEN;
-          }
-          token_available = 1;
-          break;
-        case ')':
-          if (ti > 0) {
-            context->token = TOKEN_ATOM;
-            context->buffer_index -= 1;
-          } else {
-            context->token = TOKEN_LIST_CLOSE;
-          }
-          token_available = 1;
-          break;
-        case '\'':
-         if (ti > 0) {
-            context->token = TOKEN_ATOM;
-            context->buffer_index -= 1;
-          } else {
-            context->token = TOKEN_QUOTE;
-          }
-          token_available = 1;
-          break;
-        default:
-          if (atom_valid_char(c)) {
-            context->token_value[ti++] = c;
-          } else {
-             fprintf(stderr, "Not valid atom character %c at position %d in line %d\n", c, context->position, context->line);
-             return context->token;
-          }
-      }
-    } else {
-      if (ti > 0) {
-        context->token = TOKEN_ATOM;
-        token_available = 1;
-      }
-    }
-    if (c == '\n') {
-      context->line++;
-      context->position = 0;
-    }
+static char lexer_getchar(S_EXP_PARSER_CONTEXT* context) {
+  if (context->buffer[context->buffer_index] == 0) {
+    memset(context->token_value, 0, ATOM_SIZE);
+    if (!fgets(context->buffer, EXPR_SIZE, context->stream))
+      return EOF;
+    context->buffer_index = 0;
+    context->position = 0;
+    context->line++;
   }
-  context->token_value[ti] = 0;
-  if (peek) {
-    context->buffer_index = prior_buffer_pos;
-  }
-  return context->token;
+  context->position++;
+  return context->buffer[context->buffer_index++];
 }
 
-TOKEN peek_token(S_EXP_PARSER_CONTEXT* context) {
-  return next_token(context, 1);
-}
-
-S_EXP s_list(S_EXP_PARSER_CONTEXT* context) {
-  S_EXP current = NULL;
-  S_EXP list = NULL;
-  TOKEN token;
-  while ((token = peek_token(context)) != TOKEN_LIST_CLOSE) {
-    S_EXP expr  = s_exp_create_cons(s_expression(context), NULL);
-    if (current != NULL) {
-      s_exp_set_cdr(current, expr);
-    } else {
-      list = expr;
-    }
-    current = expr;
-  }
-  next_token(context, 0);
-
-  return list ? list : s_exp_create_cons(NULL, NULL);
-}
-
-S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
-  TOKEN token = next_token(context, 0);
-  if (context->status)
-    return NULL;
+static S_EXP s_expression_analyze(S_EXP_PARSER_CONTEXT* context, TOKEN token) {
   S_EXP sexp = NULL;
-  if (token == TOKEN_LIST_OPEN) {
+  if (token == TOKEN_EOF) return NULL;
+  if (token == TOKEN_INVALID) {
+    fprintf(stderr, "Lexical error at line %d, position %d - Token %s not expected\n", context->line, context->position, context->token_value);
+  } else if (token == TOKEN_LIST_OPEN) {
     sexp = s_list(context);
   } else if (token == TOKEN_QUOTE) {
     sexp = s_expression(context);
@@ -155,10 +74,51 @@ S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
   } else if (token == TOKEN_ATOM) {
       sexp = s_exp_create_atom(context->token_value);
   } else {
-    fprintf(stderr, "Syntax error in line %d, position %d\n", context->line, context->buffer_index);
-    return NULL;
+     fprintf(stderr, "Syntax error at line %d, position %d\n", context->line, context->position);
   }
   return sexp;
+}
+
+TOKEN next_token(S_EXP_PARSER_CONTEXT* context) {
+  char c = 0;
+  while (is_ignore_char( (c = lexer_getchar(context)) ));
+  if (atom_valid_char(c)) {
+    int n = 0;
+    do {
+      context->token_value[n++] = c;
+      c = lexer_getchar(context);
+    } while(atom_valid_char(c));
+	context->token_value[n] = 0;
+	context->buffer_index--;
+    context->token = TOKEN_ATOM;
+  } else {
+      if (c == '\'') context->token = TOKEN_QUOTE;
+      else if (c == '(') context->token = TOKEN_LIST_OPEN;
+      else if (c == ')') context->token = TOKEN_LIST_CLOSE;
+      else if (c == EOF) context->token = TOKEN_EOF; 
+      else { 
+        context->token_value[0] = c;
+        context->token = TOKEN_INVALID;
+      }
+  }
+  return context->token;
+}
+
+S_EXP s_list(S_EXP_PARSER_CONTEXT* context) {
+  TOKEN token = next_token(context);
+  if (token == TOKEN_EOF) {
+    fprintf(stderr, "EOF found at line %d, position %d\n", context->line, context->position);
+    return NULL;
+  }
+  if (token == TOKEN_LIST_CLOSE) return NULL;
+  S_EXP car = s_expression_analyze(context, token);
+  S_EXP cdr = s_list(context);
+  return s_exp_create_cons(car, cdr);
+}
+
+S_EXP s_expression(S_EXP_PARSER_CONTEXT* context) {
+  TOKEN token = next_token(context);
+  return s_expression_analyze(context, token);
 }
 
 S_EXP parse(S_EXP_PARSER_CONTEXT* context) {
